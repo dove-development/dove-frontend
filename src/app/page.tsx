@@ -291,7 +291,7 @@ export default function Home() {
                                 </li>
                                 <li>
                                     <a
-                                        href="https://github.com/doveusd"
+                                        href="https://github.com/dove-development"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-sm hover:underline"
@@ -318,7 +318,7 @@ export default function Home() {
                         <BuildInfo
                             commitHash={process.env.COMMIT_HASH}
                             buildTimestamp={process.env.BUILD_TIMESTAMP}
-                            href="https://github.com/doveprotocol/dove-frontend"
+                            href="https://github.com/dove-development/dove-frontend"
                         />
                         <div className="mt-6 md:mt-0">
                             <a href="/privacy" className="text-sm hover:underline mr-4">
