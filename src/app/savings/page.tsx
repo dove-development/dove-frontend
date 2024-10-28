@@ -57,7 +57,8 @@ class SavingsAsset extends Stablecoin {
             name: stablecoin.name,
             symbol: stablecoin.symbol,
             icon: stablecoin.icon,
-            mint: stablecoin.mint
+            mint: stablecoin.mint,
+            hasStability: stablecoin.hasStability
         });
         this.balance = balance;
     }
