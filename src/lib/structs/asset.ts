@@ -36,7 +36,7 @@ export class Asset implements Hashable {
         this.symbol = symbol;
         this.icon = icon;
         this.mint = debugKeypair?.publicKey || mint;
-        this.pythOracle = DEBUG ? pythOracle : undefined;
+        this.pythOracle = DEBUG ? undefined : pythOracle;
         this.debugPrice = debugPrice;
         this.isNative = isNative;
         this.debugKeypair = debugKeypair;

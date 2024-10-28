@@ -875,6 +875,23 @@ export default class Ledger {
         this.invalidate([CollateralCache, AssetCache]);
     }
 
+    public async setCollateralOracleToPyth(mint: PublicKey, pythOracle: PublicKey) {
+        const pubkey = unwrap(this.wallet.pubkey, "Wallet not connected!");
+        const tx = new Transaction();
+        tx.add(
+            makeInstruction(
+                CollateralSetOracle.getData(OracleKind.Pyth, pythOracle.toBuffer()),
+                CollateralSetOracle.getAccounts(
+                    DOVE_PROGRAM_ID.toBuffer(),
+                    pubkey.toBuffer(),
+                    mint.toBuffer()
+                )
+            )
+        );
+        await this.wallet.sendAndConfirmTransaction(tx);
+        this.invalidate([CollateralCache, AssetCache]);
+    }
+
     public async createStability(mint: PublicKey, mintLimit: number): Promise<void> {
         const pubkey = unwrap(this.wallet.pubkey, "Wallet not connected!");
         const tx = new Transaction();

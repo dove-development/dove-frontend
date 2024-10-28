@@ -32,6 +32,7 @@ export default function CollateralSetup({
 }: CollateralSetupProps) {
     const [newPrice, setNewPrice] = useState<string>("");
     const [newMaxDeposit, setNewMaxDeposit] = useState<string>("");
+    const [newPythOracle, setNewPythOracle] = useState<string>("");
     const [loading, setLoading] = useState<string>("");
     const [error, setError] = useState<string>("");
     const assetInfo = assetCache?.get(asset);
@@ -91,6 +92,21 @@ export default function CollateralSetup({
         setError("");
         try {
             await ledger.setCollateralMaxDeposit(maxDeposit, asset);
+        } catch (e: any) {
+            setError(e.toString());
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const setPythOracle = async (pythOracle: string) => {
+        setLoading(`Setting ${asset.name} Pyth Oracle...`);
+        setError("");
+        try {
+            await ledger.setCollateralOracleToPyth(
+                asset.mint,
+                new PublicKey(pythOracle)
+            );
         } catch (e: any) {
             setError(e.toString());
         } finally {
@@ -201,6 +217,30 @@ export default function CollateralSetup({
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : null}
                         Set Max Deposit
+                    </Button>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Input
+                        type="text"
+                        placeholder="New Pyth Oracle"
+                        value={newPythOracle}
+                        onChange={(e) => setNewPythOracle(e.target.value)}
+                        className="w-full sm:w-64 bg-gray-800 border-gray-700 text-gray-100"
+                    />
+                    <Button
+                        onClick={() => {
+                            if (newPythOracle) {
+                                setPythOracle(newPythOracle);
+                                setNewPythOracle("");
+                            }
+                        }}
+                        disabled={!!loading || !collateralInfo}
+                        className="bg-orange-600 hover:bg-orange-700 text-white w-full sm:w-auto"
+                    >
+                        {loading === `Setting ${asset.name} Pyth Oracle...` ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : null}
+                        Set Pyth Oracle
                     </Button>
                 </div>
             </div>
