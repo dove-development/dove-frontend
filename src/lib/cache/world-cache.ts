@@ -54,6 +54,9 @@ export default class WorldCache {
         const oracleInfo = await wallet.getAccountInfo(oracleKey);
         const oracleData = oracleInfo?.data;
         const oracleOwner = oracleInfo?.owner;
+        if (!oracleData || !oracleOwner) {
+            throw new Error(`Can't find DOVE oracle: ${oracleKey.toBase58()}`);
+        }
         const unixTimestamp = Math.floor(new Date().getTime() / 1000);
         const dovePrice = oracle.getPriceNegativeIfStale(
             oracleKey.toBuffer(),
