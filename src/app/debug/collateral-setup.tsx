@@ -32,7 +32,6 @@ export default function CollateralSetup({
 }: CollateralSetupProps) {
     const [newPrice, setNewPrice] = useState<string>("");
     const [newMaxDeposit, setNewMaxDeposit] = useState<string>("");
-    const [newPythOracle, setNewPythOracle] = useState<string>("");
     const [loading, setLoading] = useState<string>("");
     const [error, setError] = useState<string>("");
     const assetInfo = assetCache?.get(asset);
@@ -99,13 +98,13 @@ export default function CollateralSetup({
         }
     };
 
-    const setPythOracle = async (pythOracle: string) => {
+    const setPythOracle = async () => {
         setLoading(`Setting ${asset.name} Pyth Oracle...`);
         setError("");
         try {
             await ledger.setCollateralOracleToPyth(
                 asset.mint,
-                new PublicKey(pythOracle)
+                asset.pythOracle || PublicKey.default
             );
         } catch (e: any) {
             setError(e.toString());
@@ -220,19 +219,9 @@ export default function CollateralSetup({
                     </Button>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Input
-                        type="text"
-                        placeholder="New Pyth Oracle"
-                        value={newPythOracle}
-                        onChange={(e) => setNewPythOracle(e.target.value)}
-                        className="w-full sm:w-64 bg-gray-800 border-gray-700 text-gray-100"
-                    />
                     <Button
                         onClick={() => {
-                            if (newPythOracle) {
-                                setPythOracle(newPythOracle);
-                                setNewPythOracle("");
-                            }
+                            setPythOracle();
                         }}
                         disabled={!!loading || !collateralInfo}
                         className="bg-orange-600 hover:bg-orange-700 text-white w-full sm:w-auto"
