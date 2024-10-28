@@ -61,6 +61,7 @@ export default function CollateralSetup({
             }
             await ledger.createCollateral(
                 asset.mint,
+                asset.pythOracle,
                 100_000_000,
                 asset.debugPrice,
                 index

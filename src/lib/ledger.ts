@@ -802,6 +802,7 @@ export default class Ledger {
 
     public async createCollateral(
         mint: PublicKey,
+        pythOracle: PublicKey | undefined,
         maxDeposit: number,
         initialPrice: number,
         userFeedIndex: number
@@ -824,32 +825,45 @@ export default class Ledger {
                     pubkey.toBuffer(),
                     mint.toBuffer()
                 )
-            ),
-            makeInstruction(
-                UserFeedCreate.getData(userFeedIndex),
-                UserFeedCreate.getAccounts(
+            )
+        );
+
+        let oracleKind;
+        let oracleKey;
+        if (!pythOracle) {
+            oracleKind = OracleKind.UserFeed;
+            oracleKey = new PublicKey(
+                UserFeed.derive_key(
                     DOVE_PROGRAM_ID.toBuffer(),
                     pubkey.toBuffer(),
                     userFeedIndex
                 )
-            ),
-            makeInstruction(
-                UserFeedSetPrice.getData(initialPrice),
-                UserFeedSetPrice.getAccounts(
-                    DOVE_PROGRAM_ID.toBuffer(),
-                    pubkey.toBuffer(),
-                    userFeedIndex
-                )
-            ),
-            makeInstruction(
-                CollateralSetOracle.getData(
-                    OracleKind.UserFeed,
-                    UserFeed.derive_key(
+            );
+            tx.add(
+                makeInstruction(
+                    UserFeedCreate.getData(userFeedIndex),
+                    UserFeedCreate.getAccounts(
                         DOVE_PROGRAM_ID.toBuffer(),
                         pubkey.toBuffer(),
                         userFeedIndex
                     )
                 ),
+                makeInstruction(
+                    UserFeedSetPrice.getData(initialPrice),
+                    UserFeedSetPrice.getAccounts(
+                        DOVE_PROGRAM_ID.toBuffer(),
+                        pubkey.toBuffer(),
+                        userFeedIndex
+                    )
+                )
+            );
+        } else {
+            oracleKind = OracleKind.Pyth;
+            oracleKey = pythOracle;
+        }
+        tx.add(
+            makeInstruction(
+                CollateralSetOracle.getData(oracleKind, oracleKey.toBuffer()),
                 CollateralSetOracle.getAccounts(
                     DOVE_PROGRAM_ID.toBuffer(),
                     pubkey.toBuffer(),

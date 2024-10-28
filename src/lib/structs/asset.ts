@@ -8,6 +8,7 @@ export class Asset implements Hashable {
     public readonly symbol: string;
     public readonly icon: string;
     public readonly mint: PublicKey;
+    public readonly pythOracle: PublicKey | undefined;
     public readonly debugPrice: number;
     public readonly debugKeypair: Keypair | undefined;
     public readonly isNative: boolean;
@@ -17,6 +18,7 @@ export class Asset implements Hashable {
         symbol,
         icon,
         mint,
+        pythOracle,
         debugPrice,
         isNative
     }: {
@@ -24,6 +26,7 @@ export class Asset implements Hashable {
         symbol: string;
         icon: string;
         mint: PublicKey;
+        pythOracle: PublicKey;
         debugPrice: number;
         isNative: boolean;
     }) {
@@ -33,6 +36,7 @@ export class Asset implements Hashable {
         this.symbol = symbol;
         this.icon = icon;
         this.mint = debugKeypair?.publicKey || mint;
+        this.pythOracle = DEBUG ? pythOracle : undefined;
         this.debugPrice = debugPrice;
         this.isNative = isNative;
         this.debugKeypair = debugKeypair;
@@ -47,6 +51,7 @@ export class Asset implements Hashable {
         symbol: "SOL",
         icon: "icons/solana.svg",
         mint: NATIVE_MINT,
+        pythOracle: new PublicKey("7UVimffxr9ow1uXYxsr4LHAcV58mLzhmwaeKvJ1pjLiE"),
         debugPrice: 159.23,
         isNative: true
     });
@@ -56,6 +61,7 @@ export class Asset implements Hashable {
         symbol: "HNT",
         icon: "icons/helium.svg",
         mint: new PublicKey("hntyVP6YFm1Hg25TN9WGLqM12b8TQmcknKrdu1oxWux"),
+        pythOracle: new PublicKey("4DdmDswskDxXGpwHrXUfn2CNUm9rt21ac79GHNTN3J33"),
         debugPrice: 7.495,
         isNative: false
     });
@@ -65,6 +71,7 @@ export class Asset implements Hashable {
         symbol: "PYTH",
         icon: "icons/pyth.svg",
         mint: new PublicKey("HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3"),
+        pythOracle: new PublicKey("8vjchtMuJNY4oFQdTi8yCe6mhCaNBFaUbktT482TpLPS"),
         debugPrice: 0.3566,
         isNative: false
     });
@@ -74,6 +81,7 @@ export class Asset implements Hashable {
         symbol: "JUP",
         icon: "icons/jupiter.svg",
         mint: new PublicKey("JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN"),
+        pythOracle: new PublicKey("7dbob1psH1iZBS7qPsm3Kwbf5DzSXK8Jyg31CTgTnxH5"),
         debugPrice: 0.8971,
         isNative: false
     });
@@ -83,6 +91,7 @@ export class Asset implements Hashable {
         symbol: "RENDER",
         icon: "icons/render.svg",
         mint: new PublicKey("rndrizKT3MK1iimdxRdWabcF7Zg7AR5T4nud4EkHBof"),
+        pythOracle: new PublicKey("HAm5DZhrgrWa12heKSxocQRyJWGCtXegC77hFQ8F5QTH"),
         debugPrice: 6.427,
         isNative: false
     });
@@ -100,6 +109,7 @@ export class Asset implements Hashable {
         symbol: "NOTHING",
         icon: "icons/nothing.svg",
         mint: new PublicKey("11111111111111111111111111111111"),
+        pythOracle: new PublicKey("11111111111111111111111111111111"),
         debugPrice: 0,
         isNative: false
     });
