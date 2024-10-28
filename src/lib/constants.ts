@@ -6,4 +6,4 @@ export const DOVE_PROGRAM_ID = new PublicKey(
 export const RPC_URL = "http://127.0.0.1:8899";
 export const ASSET_DECIMALS = 4;
 export const DEBUG = true;
-export const MOCK_BACKEND = false;
+export const MOCK_BACKEND = true;
