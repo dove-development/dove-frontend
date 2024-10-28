@@ -1,3 +1,4 @@
+import { PublicKey } from "@solana/web3.js";
 import { ASSET_DECIMALS } from "../constants";
 import { Asset } from "./asset";
 
@@ -21,6 +22,7 @@ export class VaultAsset extends Asset {
             symbol: asset.symbol,
             icon: asset.icon,
             mint: asset.mint,
+            pythOracle: asset.pythOracle || PublicKey.default,
             debugPrice: asset.debugPrice,
             isNative: asset.isNative
         });
