@@ -8,17 +8,19 @@ export default class Stablecoin implements Hashable {
     public readonly mint: PublicKey;
     public readonly debugKeypair: Keypair | undefined;
     public readonly icon: string;
-
+    public readonly hasStability: boolean;
     constructor({
         name,
         symbol,
         mint,
-        icon
+        icon,
+        hasStability
     }: {
         name: string;
         symbol: string;
         mint: PublicKey;
         icon: string;
+        hasStability: boolean;
     }) {
         this.name = name;
         this.symbol = symbol;
@@ -26,6 +28,7 @@ export default class Stablecoin implements Hashable {
         this.mint = keypair?.publicKey || mint;
         this.debugKeypair = keypair;
         this.icon = icon;
+        this.hasStability = hasStability;
     }
 
     public getHashCode() {
@@ -37,19 +40,22 @@ export default class Stablecoin implements Hashable {
             name: "USD Coin",
             symbol: "USDC",
             mint: new PublicKey("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
-            icon: "/icons/usdc.svg"
+            icon: "/icons/usdc.svg",
+            hasStability: true
         }),
         new Stablecoin({
             name: "Tether",
             symbol: "USDT",
             mint: new PublicKey("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"),
-            icon: "/icons/usdt.svg"
+            icon: "/icons/usdt.svg",
+            hasStability: true
         }),
         new Stablecoin({
             name: "PayPal USD",
             symbol: "PYUSD",
             mint: new PublicKey("2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"),
-            icon: "/icons/pyusd.svg"
+            icon: "/icons/pyusd.svg",
+            hasStability: false
         })
     ];
 }
