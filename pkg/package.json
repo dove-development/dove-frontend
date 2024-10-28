@@ -1,0 +1,15 @@
+{
+  "name": "dove",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "dove_bg.wasm",
+    "dove.js",
+    "dove.d.ts"
+  ],
+  "main": "dove.js",
+  "types": "dove.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
