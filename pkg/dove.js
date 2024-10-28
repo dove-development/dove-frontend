@@ -2142,17 +2142,20 @@ export class Oracle {
     /**
      * @param {Uint8Array} oracleKey
      * @param {Uint8Array} oracleData
+     * @param {Uint8Array} oracleOwner
      * @param {number} unixTimestamp
      * @returns {number}
      */
-    getPriceNegativeIfStale(oracleKey, oracleData, unixTimestamp) {
+    getPriceNegativeIfStale(oracleKey, oracleData, oracleOwner, unixTimestamp) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
             const ptr0 = passArray8ToWasm0(oracleKey, wasm.__wbindgen_export_0);
             const len0 = WASM_VECTOR_LEN;
             const ptr1 = passArray8ToWasm0(oracleData, wasm.__wbindgen_export_0);
             const len1 = WASM_VECTOR_LEN;
-            wasm.oracle_getPriceNegativeIfStale(retptr, this.__wbg_ptr, ptr0, len0, ptr1, len1, unixTimestamp);
+            const ptr2 = passArray8ToWasm0(oracleOwner, wasm.__wbindgen_export_0);
+            const len2 = WASM_VECTOR_LEN;
+            wasm.oracle_getPriceNegativeIfStale(retptr, this.__wbg_ptr, ptr0, len0, ptr1, len1, ptr2, len2, unixTimestamp);
             var r0 = getDataViewMemory0().getFloat64(retptr + 8 * 0, true);
             var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
             var r3 = getDataViewMemory0().getInt32(retptr + 4 * 3, true);
@@ -3895,15 +3898,7 @@ const UserFeedFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
     : new FinalizationRegistry(ptr => wasm.__wbg_userfeed_free(ptr >>> 0, 1));
 /**
- * A user-controlled oracle.
- *
- * It's useful for:
- * 1. Debugging: Developers can set custom prices for testing.
- * 2. Initial implementation: For newly launched tokens or assets without established external price feeds.
- *    For example, when this program is first launched, DOVE will not have an external price feed.
- * 3. Flexibility: Other account types can be deserialized as UserFeed,
- *    allowing easy extension of oracle functionality
- *    without modifying the core implementation.
+ * A user-controlled oracle, for testing and initial implementation.
  */
 export class UserFeed {
 

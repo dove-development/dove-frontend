@@ -143,11 +143,23 @@ export default function CollateralSetup({
                     </p>
                 </div>
             </div>
-            <div className="bg-gray-800 rounded-lg p-4 mb-4 sm:mb-6">
-                <span className="text-sm font-medium text-gray-400">Max Deposit</span>
-                <p className="text-xl sm:text-2xl font-bold text-gray-100">
-                    {maxDeposit ? nf(maxDeposit, 2) : "N/A"}
-                </p>
+            <div className="space-y-4 mb-4 sm:mb-6">
+                <div className="bg-gray-800 rounded-lg p-4">
+                    <span className="text-sm font-medium text-gray-400">
+                        Max Deposit
+                    </span>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-100">
+                        {maxDeposit ? nf(maxDeposit, 2) : "N/A"}
+                    </p>
+                </div>
+                <div className="bg-gray-800 rounded-lg p-4">
+                    <span className="text-sm font-medium text-gray-400">
+                        Oracle Key
+                    </span>
+                    <p className="text-sm font-mono text-gray-100 break-all">
+                        {collateralInfo?.oracleKey?.toString() || "N/A"}
+                    </p>
+                </div>
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-4 sm:mb-6">
                 <Button

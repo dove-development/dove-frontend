@@ -553,10 +553,11 @@ export class Oracle {
   /**
    * @param {Uint8Array} oracleKey
    * @param {Uint8Array} oracleData
+   * @param {Uint8Array} oracleOwner
    * @param {number} unixTimestamp
    * @returns {number}
    */
-  getPriceNegativeIfStale(oracleKey: Uint8Array, oracleData: Uint8Array, unixTimestamp: number): number;
+  getPriceNegativeIfStale(oracleKey: Uint8Array, oracleData: Uint8Array, oracleOwner: Uint8Array, unixTimestamp: number): number;
   readonly key: Uint8Array;
 }
 export class Page {
@@ -1018,15 +1019,7 @@ export class Transaction {
   static fromBytes(bytes: Uint8Array): Transaction;
 }
 /**
- * A user-controlled oracle.
- *
- * It's useful for:
- * 1. Debugging: Developers can set custom prices for testing.
- * 2. Initial implementation: For newly launched tokens or assets without established external price feeds.
- *    For example, when this program is first launched, DOVE will not have an external price feed.
- * 3. Flexibility: Other account types can be deserialized as UserFeed,
- *    allowing easy extension of oracle functionality
- *    without modifying the core implementation.
+ * A user-controlled oracle, for testing and initial implementation.
  */
 export class UserFeed {
   free(): void;
@@ -1696,7 +1689,7 @@ export interface InitOutput {
   readonly oracle_new_wasm: (a: number, b: number, c: number, d: number) => void;
   readonly oracle_key: (a: number, b: number) => void;
   readonly oracle_zero: () => number;
-  readonly oracle_getPriceNegativeIfStale: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
+  readonly oracle_getPriceNegativeIfStale: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
   readonly userfeed_derive_key: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly __wbg_config_free: (a: number, b: number) => void;
   readonly config_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;

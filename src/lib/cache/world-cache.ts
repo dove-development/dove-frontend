@@ -51,11 +51,14 @@ export default class WorldCache {
 
         const oracle = world.config.doveOracle;
         const oracleKey = new PublicKey(oracle.key);
-        const oracleData = await wallet.getAccountData(oracleKey);
+        const oracleInfo = await wallet.getAccountInfo(oracleKey);
+        const oracleData = oracleInfo?.data;
+        const oracleOwner = oracleInfo?.owner;
         const unixTimestamp = Math.floor(new Date().getTime() / 1000);
         const dovePrice = oracle.getPriceNegativeIfStale(
             oracleKey.toBuffer(),
             oracleData || new Uint8Array(),
+            oracleOwner?.toBuffer() || new Uint8Array(),
             unixTimestamp
         );
         const worldDebt = world.debt.projectTotal(

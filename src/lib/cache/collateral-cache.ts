@@ -59,10 +59,14 @@ export default class CollateralCache extends HashMap<Asset, CollateralInfo> {
 
             const oracle = collateral.oracle;
             const oracleKey = new PublicKey(oracle.key);
-            const oracleData = await wallet.getAccountData(oracleKey);
+            console.log("oracleKey", oracleKey.toBase58());
+            const oracleInfo = await wallet.getAccountInfo(oracleKey);
+            const oracleData = oracleInfo?.data;
+            const oracleOwner = oracleInfo?.owner;
             const price = oracle.getPriceNegativeIfStale(
                 oracleKey.toBuffer(),
                 oracleData || new Uint8Array(),
+                oracleOwner?.toBuffer() || new Uint8Array(),
                 unixTimestamp
             );
 

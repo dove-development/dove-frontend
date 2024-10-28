@@ -1,5 +1,6 @@
 import { SendTransactionOptions } from "@solana/wallet-adapter-base";
 import {
+    AccountInfo,
     Connection,
     PublicKey,
     Transaction,
@@ -82,6 +83,13 @@ export class Wallet {
             return null;
         }
         return accountInfo.data;
+    }
+
+    async getAccountInfo(pubkey: PublicKey): Promise<AccountInfo<Buffer> | null> {
+        if (!this.connection) {
+            throw new Error("No connection");
+        }
+        return await this.connection.getAccountInfo(pubkey);
     }
 
     async getMint(mint: PublicKey): Promise<Mint | null> {

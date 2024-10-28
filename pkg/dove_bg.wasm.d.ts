@@ -98,7 +98,7 @@ export function schedule_total_emission(a: number): number;
 export function oracle_new_wasm(a: number, b: number, c: number, d: number): void;
 export function oracle_key(a: number, b: number): void;
 export function oracle_zero(): number;
-export function oracle_getPriceNegativeIfStale(a: number, b: number, c: number, d: number, e: number, f: number, g: number): void;
+export function oracle_getPriceNegativeIfStale(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number): void;
 export function userfeed_derive_key(a: number, b: number, c: number, d: number, e: number, f: number): void;
 export function __wbg_config_free(a: number, b: number): void;
 export function config_new(a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number): void;
