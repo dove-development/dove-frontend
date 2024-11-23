@@ -89,12 +89,10 @@ export default class VaultCache {
             balances.insert(reserveAsset, reserve.balance);
         }
         const unixTimestamp = Math.floor(new Date().getTime() / 1000);
-        const debt = vault.debt.projectTotal(
-            world.debt,
-            world.config.debtConfig,
-            unixTimestamp
-        );
-        const rewards = vault.debt.projectRewards(world.debt, unixTimestamp);
+        const debtBook = world.debt;
+        const debtConfig = world.config.debtConfig;
+        const debt = vault.debt.projectTotal(debtBook, debtConfig, unixTimestamp);
+        const rewards = vault.debt.projectRewards(debtBook, debtConfig, unixTimestamp);
         return new VaultCache(
             vault,
             debt,

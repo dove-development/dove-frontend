@@ -30,7 +30,7 @@ export default function WithdrawDialog({
     const newPosition = position.withCollateral(
         position.collateral - (asset.price || 0) * amount
     );
-    const effectiveMax = position.availableToWithdraw / (asset.price || 0);
+    const effectiveMax = Math.min(max, position.availableToWithdraw / (asset.price || 0));
 
     return (
         <TransferDialog

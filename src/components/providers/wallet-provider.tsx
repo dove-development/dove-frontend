@@ -13,6 +13,7 @@ import {
     PhantomWalletAdapter,
     SolflareWalletAdapter
 } from "@solana/wallet-adapter-wallets";
+import { Connection } from "@solana/web3.js";
 
 function JupiterSyncProps() {
     const contextState = useUnifiedWallet();
@@ -43,7 +44,15 @@ export function WalletProvider({
     );
 
     return (
-        <ConnectionProvider endpoint={rpcUrl}>
+        <ConnectionProvider
+            endpoint={rpcUrl}
+            config={{
+                fetch: (input, init) => {
+                    console.log(input, init);
+                    return fetch(input, init);
+                }
+            }}
+        >
             <UnifiedWalletProvider
                 wallets={wallets}
                 config={{

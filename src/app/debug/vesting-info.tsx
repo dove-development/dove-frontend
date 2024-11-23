@@ -26,7 +26,7 @@ export default function VestingInfo({
     }, []);
     const totalAvailableToClaim = vesting?.getEmissionDue(unixTimestamp) || 0;
     const totalDistributed = vesting?.distributed || 0;
-    const maxDistribution = vesting?.schedule.total_emission || 0;
+    const maxDistribution = vesting?.schedule.totalEmission || 0;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -47,7 +47,7 @@ export default function VestingInfo({
 
     return (
         <Card className="mt-8 shadow-lg bg-gray-800 border-gray-700">
-            <CardHeader className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white">
+            <CardHeader className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-t-lg">
                 <CardTitle className="text-2xl">Vesting Information</CardTitle>
             </CardHeader>
             <CardContent className="p-6">

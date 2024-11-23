@@ -22,10 +22,12 @@ import SvgIcon from "@/components/interface/svg-icon";
 import ListCard from "@/components/card/list-card";
 import DvdSupplyCache from "@/lib/cache/dvd-supply-cache";
 import ErrorBanner from "@/components/interface/error-banner";
+import StabilityCache from "@/lib/cache/stability-cache";
 
 export default function MetricsDashboard() {
     const [worldCache, worldError] = useCache(WorldCache, []);
     const [collateralCache, collateralError] = useCache(CollateralCache, []);
+    const [stabilityCache, stabilityError] = useCache(StabilityCache, []);
     const [dvdSupplyCache, dvdSupplyError] = useCache(DvdSupplyCache, []);
 
     const error = worldError || collateralError || dvdSupplyError;
@@ -44,7 +46,7 @@ export default function MetricsDashboard() {
     const [dvdSupply, doveSupply, doveRelease, dovePrice] = useMemo(() => {
         const world = worldCache?.world;
         return [
-            world?.dvd.supply,
+            worldCache?.dvdSupply,
             world?.dove.supply,
             worldCache?.doveRelease,
             worldCache?.dovePrice
@@ -55,8 +57,11 @@ export default function MetricsDashboard() {
         collateralCache?.forEach((c) => {
             result += c.deposited * c.price;
         });
+        stabilityCache?.forEach((s) => {
+            result += s.deposited;
+        });
         return result;
-    }, [collateralCache]);
+    }, [collateralCache, stabilityCache]);
 
     return (
         <InterfaceContainer>
@@ -129,6 +134,12 @@ export default function MetricsDashboard() {
                                         doveSupply !== undefined
                                             ? `$${nf(dovePrice * doveSupply, 2)}`
                                             : undefined
+                                },
+                                {
+                                    label: "DOVE Emission Rate",
+                                    value: worldCache?.doveEmittedPerDay !== undefined
+                                        ? `${nf(worldCache.doveEmittedPerDay, 4)} DOVE/day`
+                                        : undefined
                                 }
                             ]}
                         />

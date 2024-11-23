@@ -58,7 +58,7 @@ import {
     VaultClaimRewards,
     SavingsClaimRewards,
     StabilityCreate,
-    StabilityUpdateMintLimit,
+    StabilityUpdateMaxDeposit,
     StabilityBuyDvd,
     StabilitySellDvd,
     VaultUnliquidate,
@@ -71,7 +71,8 @@ import {
     OfferingBuy,
     Stability,
     FlashMintBegin,
-    FlashMintEnd
+    FlashMintEnd,
+    InterestRate
 } from "@/../pkg/dove";
 import { DOVE_PROGRAM_ID } from "@/lib/constants";
 import { solToLamports, unwrap } from "@/lib/utils";
@@ -658,7 +659,7 @@ export default class Ledger {
         await this.wallet.sendAndConfirmTransaction(tx, {
             signers: [mintKeypair]
         });
-        this.invalidate([DoveCache, AssetCache]);
+        this.invalidate([DoveCache, AssetCache, StablecoinCache]);
         return mintKeypair.publicKey;
     }
 
@@ -709,47 +710,59 @@ export default class Ledger {
                 userFeedIndex
             )
         );
+        const totalMaximum = 2857 + (1/7);
+        const warmupEmission = 0.5 * 30 * totalMaximum; // (base * height) / 2
+        const linearEmission = 335 * totalMaximum; // length * width
+        const totalEmission = warmupEmission + linearEmission;
+        if (Math.round(totalEmission) !== 1_000_000) {
+            throw new Error(
+                "Total emission is not 1,000,000, but " + totalEmission
+            );
+        }
         // emission: 300,000 DOVE over 1 year
         const debtSchedule = new Schedule(
-            /* maximum */ 857.142857143,
+            /* maximum */ totalMaximum * 0.3,
             /* warmupLength */ 30,
             /* distributionLength */ 365
         );
-        if (Math.round(debtSchedule.total_emission) !== 300_000) {
+        if (Math.round(debtSchedule.totalEmission) !== 300_000) {
             throw new Error(
                 "Debt schedule total emission is not 300,000, but " +
-                    debtSchedule.total_emission
+                    debtSchedule.totalEmission
             );
         }
+        const debtConfig = new BookConfig(
+            new InterestRate(/* apy */ 0.01),
+            debtSchedule
+        );
         // emission: 300,000 DOVE over 1 year
         const savingsSchedule = new Schedule(
-            /* maximum */ 857.142857143,
+            /* maximum */ totalMaximum * 0.3,
             /* warmupLength */ 30,
             /* distributionLength */ 365
         );
-        if (Math.round(savingsSchedule.total_emission) !== 300_000) {
+        if (Math.round(savingsSchedule.totalEmission) !== 300_000) {
             throw new Error(
                 "Savings schedule total emission is not 300,000, but " +
-                    savingsSchedule.total_emission
+                    savingsSchedule.totalEmission
             );
         }
+        const savingsConfig = new BookConfig(InterestRate.zero, savingsSchedule);
         // emission: 400,000 DOVE over 1 year
         const vestingSchedule = new Schedule(
-            /* maximum */ 1142.85714286,
+            /* maximum */ totalMaximum * 0.4,
             /* warmupLength */ 30,
             /* distributionLength */ 365
         );
-        if (Math.round(vestingSchedule.total_emission) !== 400_000) {
+        if (Math.round(vestingSchedule.totalEmission) !== 400_000) {
             throw new Error(
                 "Vesting schedule total emission is not 400,000, but " +
-                    vestingSchedule.total_emission
+                    vestingSchedule.totalEmission
             );
         }
         tx.add(
             makeInstruction(
                 WorldCreate.getData(
-                    /* debtSchedule */ debtSchedule,
-                    /* savingsSchedule */ savingsSchedule,
                     /* vestingRecipient */ pubkey.toBuffer(),
                     /* vestingSchedule */ vestingSchedule
                 ),
@@ -782,12 +795,13 @@ export default class Ledger {
         );
         const config = new Config(
             /* maxLtv */ 0.8,
+            /* dvdInterestRate */ new InterestRate(/* apy */ 0.07),
             /* doveOracle */ doveOracle,
             /* auctionConfig */ auctionConfig,
-            /* debtConfig */ new BookConfig(/* apy */ 0.08),
+            /* debtConfig */ debtConfig,
             /* flashMintConfig */ flashMintConfig,
             /* offeringConfig */ offeringConfig,
-            /* savingsConfig */ new BookConfig(/* apy */ 0.07),
+            /* savingsConfig */ savingsConfig,
             /* vaultConfig */ vaultConfig
         );
         tx.add(
@@ -892,7 +906,7 @@ export default class Ledger {
         this.invalidate([CollateralCache, AssetCache]);
     }
 
-    public async createStability(mint: PublicKey, mintLimit: number): Promise<void> {
+    public async createStability(mint: PublicKey, maxDeposit: number): Promise<void> {
         const pubkey = unwrap(this.wallet.pubkey, "Wallet not connected!");
         const tx = new Transaction();
 
@@ -906,8 +920,8 @@ export default class Ledger {
                 )
             ),
             makeInstruction(
-                StabilityUpdateMintLimit.getData(mintLimit),
-                StabilityUpdateMintLimit.getAccounts(
+                StabilityUpdateMaxDeposit.getData(maxDeposit),
+                StabilityUpdateMaxDeposit.getAccounts(
                     DOVE_PROGRAM_ID.toBuffer(),
                     pubkey.toBuffer(),
                     mint.toBuffer()
@@ -916,7 +930,7 @@ export default class Ledger {
         );
 
         await this.wallet.sendAndConfirmTransaction(tx);
-        this.invalidate([StabilityCache, StablecoinCache, AssetCache]);
+        this.invalidate([StabilityCache, AssetCache]);
     }
 
     public async buyDvd(
@@ -1127,14 +1141,14 @@ export default class Ledger {
         this.invalidate([WorldCache]);
     }
 
-    public async setStabilityMintLimit(mintLimit: number, stability: Stability) {
+    public async setStabilityMaxDeposit(maxDeposit: number, stability: Stability) {
         const pubkey = unwrap(this.wallet.pubkey, "Wallet not connected!");
         const tx = new Transaction();
         const stabilityMint = new PublicKey(stability.mintKey);
         tx.add(
             makeInstruction(
-                StabilityUpdateMintLimit.getData(mintLimit),
-                StabilityUpdateMintLimit.getAccounts(
+                StabilityUpdateMaxDeposit.getData(maxDeposit),
+                StabilityUpdateMaxDeposit.getAccounts(
                     DOVE_PROGRAM_ID.toBuffer(),
                     pubkey.toBuffer(),
                     stabilityMint.toBuffer()

@@ -66,8 +66,14 @@ export default function Debug({}: DebugProps) {
     useEffect(() => {
         const { world } = worldCache || {};
         if (!world) return;
-        setDoveMint(new PublicKey(world.dove.mint));
-        setDvdMint(new PublicKey(world.dvd.mint));
+        const newDoveMint = new PublicKey(world.dove.mint);
+        const newDvdMint = new PublicKey(world.dvd.mint);
+        if (!doveMint || !newDoveMint.equals(doveMint)) {
+            setDoveMint(newDoveMint);
+        }
+        if (!dvdMint || !newDvdMint.equals(dvdMint)) {
+            setDvdMint(newDvdMint);
+        }
     }, [worldCache]);
 
     const walletBalance = assetCache?.get(Asset.SOL)?.balance || 0;
@@ -134,6 +140,7 @@ export default function Debug({}: DebugProps) {
                 worldCache={worldCache}
                 authorityCache={authorityCache}
                 collateralCache={collateralCache}
+                stablecoinCache={stablecoinCache}
                 assetCache={assetCache}
                 stabilityCache={stabilityCache}
                 ledger={ledger}

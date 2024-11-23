@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Position from "@/lib/position";
-import RiskSlider from "@/app/vault/risk-slider";
+import RiskSlider from "@/app/borrow/risk-slider";
 import TransferDialog from "@/components/dialog/transfer-dialog";
 import { nf } from "@/lib/utils";
 
@@ -33,7 +33,7 @@ export default function BorrowDialog({
             max={position.availableToBorrow}
             decimals={2}
             stats={[
-                { label: "Vault Debt", value: `${nf(newPosition.debt, 2)} DVD` },
+                { label: "Total Debt", value: `${nf(newPosition.debt, 2)} DVD` },
                 {
                     label: "Loan-to-Value Ratio",
                     value: `${nf(loanToValueRatio * 100, 2)}%`

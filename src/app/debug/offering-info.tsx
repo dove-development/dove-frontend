@@ -95,7 +95,7 @@ export default function OfferingInfo({
 
     return (
         <Card className="mt-8 shadow-lg bg-gray-800 border-gray-700">
-            <CardHeader className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white">
+            <CardHeader className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white rounded-t-lg">
                 <CardTitle className="text-2xl">Offering Information</CardTitle>
             </CardHeader>
             <CardContent className="p-6">

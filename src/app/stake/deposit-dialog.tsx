@@ -3,7 +3,6 @@
 import { useState } from "react";
 import TransferDialog from "@/components/dialog/transfer-dialog";
 import { ASSET_DECIMALS } from "@/lib/constants";
-import SavingsAccount from "@/lib/structs/savings-account";
 import { nf } from "@/lib/utils";
 import { BigSlider } from "@/components/interface/big-slider";
 
@@ -12,7 +11,7 @@ interface DepositDialogProps {
     close: () => void;
     execute: (amount: number) => Promise<void>;
     max: number;
-    account: SavingsAccount;
+    total: number;
 }
 
 export default function DepositDialog({
@@ -20,10 +19,9 @@ export default function DepositDialog({
     close,
     execute,
     max,
-    account
+    total
 }: DepositDialogProps) {
     const [amount, setAmount] = useState(0);
-    const newSavings = account.withBalance(account.balance + amount);
 
     return (
         <TransferDialog
@@ -37,15 +35,7 @@ export default function DepositDialog({
             stats={[
                 {
                     label: "Savings Balance",
-                    value: `${nf(newSavings.balance, 2)} DVD`
-                },
-                {
-                    label: "30-day Projection",
-                    value: `+${nf(newSavings.projectGrowth(30), 2)} DVD`
-                },
-                {
-                    label: "1-year Projection",
-                    value: `+${nf(newSavings.projectGrowth(365), 2)} DVD`
+                    value: `${nf(total + amount, 2)} DVD`
                 }
             ]}
             execute={execute}

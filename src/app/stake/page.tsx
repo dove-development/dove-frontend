@@ -8,11 +8,10 @@ import DvdCache from "@/lib/cache/dvd-cache";
 import { nf } from "@/lib/utils";
 import { SavingsCache } from "@/lib/cache/savings-cache";
 import StablecoinCache from "@/lib/cache/stablecoin-cache";
-import SavingsAccount from "@/lib/structs/savings-account";
 import Stablecoin from "@/lib/structs/stablecoin";
 import { JupiterDialog } from "@/components/dialog/jupiter-dialog";
-import DepositDialog from "@/app/savings/deposit-dialog";
-import WithdrawDialog from "@/app/savings/withdraw-dialog";
+import DepositDialog from "@/app/stake/deposit-dialog";
+import WithdrawDialog from "@/app/stake/withdraw-dialog";
 import { Button } from "@/components/ui/button";
 import DoveCache from "@/lib/cache/dove-cache";
 
@@ -97,30 +96,6 @@ export default function Page() {
     const { world } = worldCache || {};
     const { total, rewards } = savingsCache || {};
 
-    const savingsRateApy = world?.config.savingsConfig.apy;
-    const savingsRatePercentage =
-        savingsRateApy !== undefined ? savingsRateApy * 100 : undefined;
-    const account = useMemo(() => {
-        if (total !== undefined && savingsRatePercentage !== undefined) {
-            return new SavingsAccount(total, savingsRatePercentage);
-        }
-        return undefined;
-    }, [total, savingsRatePercentage]);
-
-    const summaryItems = useMemo(
-        () => [
-            {
-                label: "30-day Projection",
-                value: account && `+${nf(account.projectGrowth(30), 2)} DVD`
-            },
-            {
-                label: "1-year Projection",
-                value: account && `+${nf(account.projectGrowth(365), 2)} DVD`
-            }
-        ],
-        [account]
-    );
-
     const [openDialog, setOpenDialog] = useState<
         "deposit" | "withdraw" | "jupiter" | undefined
     >(undefined);
@@ -151,7 +126,6 @@ export default function Page() {
             <DepositDialog
                 open={openDialog === "deposit"}
                 close={handleDialogClose}
-                account={account || SavingsAccount.ZERO}
                 execute={(amount) => {
                     if (!world || !savingsCache) {
                         return Promise.reject("World or savings not loaded");
@@ -159,17 +133,18 @@ export default function Page() {
                     return ledger.depositDvd(amount, world, savingsCache);
                 }}
                 max={dvdCache?.balance || 0}
+                total={total || 0}
             />
             <WithdrawDialog
                 open={openDialog === "withdraw"}
                 close={handleDialogClose}
-                account={account || SavingsAccount.ZERO}
                 execute={(amount) => {
                     if (!world || !savingsCache) {
                         return Promise.reject("World or savings not loaded");
                     }
                     return ledger.withdrawDvd(amount, world, savingsCache);
                 }}
+                total={total || 0}
             />
             <JupiterDialog
                 open={openDialog === "jupiter"}
@@ -189,7 +164,7 @@ export default function Page() {
                 )}
                 <InterfaceHeader>
                     <AssetTitle
-                        title="Savings Balance"
+                        title="Staked Balance"
                         value={total}
                         icon={"/icons/dvd.svg"}
                     />
@@ -197,13 +172,13 @@ export default function Page() {
                     <ResponsiveList>
                         <HeaderButton
                             onClick={() => handleDialogOpen("deposit")}
-                            disabled={!account || !dvdCache?.balance}
+                            disabled={!dvdCache?.balance}
                         >
                             Deposit DVD
                         </HeaderButton>
                         <HeaderButton
                             onClick={() => handleDialogOpen("withdraw")}
-                            disabled={!account?.balance}
+                            disabled={!total}
                         >
                             Withdraw DVD
                         </HeaderButton>
@@ -212,8 +187,7 @@ export default function Page() {
                                 !cacheError &&
                                 (total === undefined ||
                                     rewards === undefined ||
-                                    savingsRatePercentage === undefined ||
-                                    worldCache?.savingsRewardsPercentage === undefined)
+                                    worldCache?.savingsRewardsApy === undefined)
                             }
                             refresh={cacheRefresh}
                         />
@@ -291,29 +265,17 @@ export default function Page() {
                                     );
                                 }}
                             />
-                            <TwoColumn>
-                                <ValueCard
-                                    label="Savings APY"
-                                    value={
-                                        savingsRatePercentage !== undefined
-                                            ? `${nf(savingsRatePercentage, 2)}%`
-                                            : undefined
-                                    }
-                                />
-                                <ValueCard
-                                    label="Rewards APY"
-                                    value={
-                                        worldCache?.savingsRewardsPercentage !==
-                                        undefined
-                                            ? `${nf(
-                                                  worldCache.savingsRewardsPercentage,
-                                                  2
-                                              )}%`
-                                            : undefined
-                                    }
-                                />
-                            </TwoColumn>
-                            <ListCard items={summaryItems} />
+                            <ValueCard
+                                label="Rewards APY"
+                                value={
+                                    worldCache?.savingsRewardsApy !== undefined
+                                        ? `${nf(
+                                              worldCache.savingsRewardsApy.toPercentage(),
+                                              2
+                                          )}%`
+                                        : undefined
+                                }
+                            />
                         </Sidebar>
                     </NarrowerContent>
                 </UnequalSplit>

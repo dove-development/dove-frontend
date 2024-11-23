@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import BorrowDialog from "@/app/vault/borrow-dialog";
-import RepayDialog from "@/app/vault/repay-dialog";
-import DepositDialog from "@/app/vault/deposit-dialog";
-import WithdrawDialog from "@/app/vault/withdraw-dialog";
+import BorrowDialog from "@/app/borrow/borrow-dialog";
+import RepayDialog from "@/app/borrow/repay-dialog";
+import DepositDialog from "@/app/borrow/deposit-dialog";
+import WithdrawDialog from "@/app/borrow/withdraw-dialog";
 import Position, { RiskLevel } from "@/lib/position";
 import { useCache } from "@/components/providers/cache-provider";
 import { Asset } from "@/lib/structs/asset";
@@ -240,7 +240,7 @@ export default function Page() {
                     <UnhealthyBanner ltv={position.ltv} maxLtv={position.maxLtv} />
                 )}
                 <InterfaceHeader>
-                    <AssetTitle title="Vault Debt" value={debt} icon="/icons/dvd.svg" />
+                    <AssetTitle title="Total Debt" value={debt} icon="/icons/dvd.svg" />
                     <ResponsiveList>
                         <HeaderButton
                             onClick={() => handleDialogOpen("borrow")}
@@ -262,7 +262,7 @@ export default function Page() {
                                     collateralValue === undefined ||
                                     position === undefined ||
                                     world === undefined ||
-                                    worldCache?.vaultRewardsPercentage === undefined)
+                                    worldCache?.vaultRewardsApy === undefined)
                             }
                             refresh={refresh}
                         />
@@ -366,8 +366,11 @@ export default function Page() {
                                 <ValueCard
                                     label="Borrow APY"
                                     value={
-                                        world
-                                            ? `${(world.config.debtConfig.apy * 100).toFixed(2)}%`
+                                        worldCache
+                                            ? `${nf(
+                                                  worldCache.totalBorrowApy.toPercentage(),
+                                                  2
+                                              )}%`
                                             : undefined
                                     }
                                 />
@@ -375,7 +378,10 @@ export default function Page() {
                                     label="Rewards APY"
                                     value={
                                         worldCache
-                                            ? `${(worldCache.vaultRewardsPercentage * 100).toFixed(2)}%`
+                                            ? `${nf(
+                                                  worldCache.vaultRewardsApy.toPercentage(),
+                                                  2
+                                              )}%`
                                             : undefined
                                     }
                                 />

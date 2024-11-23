@@ -219,6 +219,11 @@ function passArrayJsValueToWasm0(array, malloc) {
     WASM_VECTOR_LEN = array.length;
     return ptr;
 }
+
+export function initializePanicHook() {
+    wasm.initializePanicHook();
+}
+
 /**
  * Initialize Javascript logging and panic handler
  */
@@ -531,19 +536,14 @@ export class Book {
         return ret;
     }
     /**
+     * @param {BookConfig} config
      * @param {number} unixTimestamp
      * @returns {number}
      */
-    projectRewards(unixTimestamp) {
-        const ret = wasm.book_projectRewards(this.__wbg_ptr, unixTimestamp);
+    projectRewards(config, unixTimestamp) {
+        _assertClass(config, BookConfig);
+        const ret = wasm.book_projectRewards(this.__wbg_ptr, config.__wbg_ptr, unixTimestamp);
         return ret;
-    }
-    /**
-     * @returns {Schedule}
-     */
-    get rewardSchedule() {
-        const ret = wasm.book_rewardSchedule(this.__wbg_ptr);
-        return Schedule.__wrap(ret);
     }
     /**
      * @returns {number}
@@ -582,20 +582,32 @@ export class BookConfig {
         wasm.__wbg_bookconfig_free(ptr, 0);
     }
     /**
-     * @param {number} apy
+     * @param {InterestRate} interestRate
+     * @param {Schedule} rewardSchedule
      */
-    constructor(apy) {
-        const ret = wasm.bookconfig_new(apy);
+    constructor(interestRate, rewardSchedule) {
+        _assertClass(interestRate, InterestRate);
+        var ptr0 = interestRate.__destroy_into_raw();
+        _assertClass(rewardSchedule, Schedule);
+        var ptr1 = rewardSchedule.__destroy_into_raw();
+        const ret = wasm.bookconfig_new(ptr0, ptr1);
         this.__wbg_ptr = ret >>> 0;
         BookConfigFinalization.register(this, this.__wbg_ptr, this);
         return this;
     }
     /**
-     * @returns {number}
+     * @returns {InterestRate}
      */
-    get apy() {
-        const ret = wasm.bookconfig_apy(this.__wbg_ptr);
-        return ret;
+    get interestRate() {
+        const ret = wasm.bookconfig_interestRate(this.__wbg_ptr);
+        return InterestRate.__wrap(ret);
+    }
+    /**
+     * @returns {Schedule}
+     */
+    get rewardSchedule() {
+        const ret = wasm.bookconfig_rewardSchedule(this.__wbg_ptr);
+        return Schedule.__wrap(ret);
     }
 }
 
@@ -963,6 +975,7 @@ export class Config {
     }
     /**
      * @param {number} maxLtv
+     * @param {InterestRate} dvdInterestRate
      * @param {Oracle} doveOracle
      * @param {AuctionConfig} auctionConfig
      * @param {BookConfig} debtConfig
@@ -971,24 +984,26 @@ export class Config {
      * @param {BookConfig} savingsConfig
      * @param {VaultConfig} vaultConfig
      */
-    constructor(maxLtv, doveOracle, auctionConfig, debtConfig, flashMintConfig, offeringConfig, savingsConfig, vaultConfig) {
+    constructor(maxLtv, dvdInterestRate, doveOracle, auctionConfig, debtConfig, flashMintConfig, offeringConfig, savingsConfig, vaultConfig) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            _assertClass(dvdInterestRate, InterestRate);
+            var ptr0 = dvdInterestRate.__destroy_into_raw();
             _assertClass(doveOracle, Oracle);
-            var ptr0 = doveOracle.__destroy_into_raw();
+            var ptr1 = doveOracle.__destroy_into_raw();
             _assertClass(auctionConfig, AuctionConfig);
-            var ptr1 = auctionConfig.__destroy_into_raw();
+            var ptr2 = auctionConfig.__destroy_into_raw();
             _assertClass(debtConfig, BookConfig);
-            var ptr2 = debtConfig.__destroy_into_raw();
+            var ptr3 = debtConfig.__destroy_into_raw();
             _assertClass(flashMintConfig, FlashMintConfig);
-            var ptr3 = flashMintConfig.__destroy_into_raw();
+            var ptr4 = flashMintConfig.__destroy_into_raw();
             _assertClass(offeringConfig, OfferingConfig);
-            var ptr4 = offeringConfig.__destroy_into_raw();
+            var ptr5 = offeringConfig.__destroy_into_raw();
             _assertClass(savingsConfig, BookConfig);
-            var ptr5 = savingsConfig.__destroy_into_raw();
+            var ptr6 = savingsConfig.__destroy_into_raw();
             _assertClass(vaultConfig, VaultConfig);
-            var ptr6 = vaultConfig.__destroy_into_raw();
-            wasm.config_new(retptr, maxLtv, ptr0, ptr1, ptr2, ptr3, ptr4, ptr5, ptr6);
+            var ptr7 = vaultConfig.__destroy_into_raw();
+            wasm.config_new(retptr, maxLtv, ptr0, ptr1, ptr2, ptr3, ptr4, ptr5, ptr6, ptr7);
             var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
             var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
             var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
@@ -1008,6 +1023,13 @@ export class Config {
     get maxLtv() {
         const ret = wasm.auctionconfig_beginScale(this.__wbg_ptr);
         return ret;
+    }
+    /**
+     * @returns {InterestRate}
+     */
+    get dvdInterestRate() {
+        const ret = wasm.config_dvdInterestRate(this.__wbg_ptr);
+        return InterestRate.__wrap(ret);
     }
     /**
      * @returns {Oracle}
@@ -1141,6 +1163,14 @@ const DecimalFinalization = (typeof FinalizationRegistry === 'undefined')
  */
 export class Decimal {
 
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(Decimal.prototype);
+        obj.__wbg_ptr = ptr;
+        DecimalFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
         this.__wbg_ptr = 0;
@@ -1169,6 +1199,45 @@ export class Decimal {
     static numberToTokenAmount(amount, decimals) {
         const ret = wasm.decimal_numberToTokenAmount(amount, decimals);
         return BigInt.asUintN(64, ret);
+    }
+}
+
+const DvdPriceFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_dvdprice_free(ptr >>> 0, 1));
+/**
+ * Calculates the current price of DVD.
+ */
+export class DvdPrice {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(DvdPrice.prototype);
+        obj.__wbg_ptr = ptr;
+        DvdPriceFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        DvdPriceFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_dvdprice_free(ptr, 0);
+    }
+    /**
+     * @param {InterestRate} interestRate
+     * @param {number} unixTimestamp
+     * @returns {Decimal}
+     */
+    projectPrice(interestRate, unixTimestamp) {
+        _assertClass(interestRate, InterestRate);
+        const ret = wasm.dvdprice_projectPrice(this.__wbg_ptr, interestRate.__wbg_ptr, unixTimestamp);
+        return Decimal.__wrap(ret);
     }
 }
 
@@ -1573,6 +1642,69 @@ export class Instructions {
         _assertClass(instruction, Instruction);
         var ptr0 = instruction.__destroy_into_raw();
         wasm.instructions_push(this.__wbg_ptr, ptr0);
+    }
+}
+
+const InterestRateFinalization = (typeof FinalizationRegistry === 'undefined')
+    ? { register: () => {}, unregister: () => {} }
+    : new FinalizationRegistry(ptr => wasm.__wbg_interestrate_free(ptr >>> 0, 1));
+/**
+ * A continuously compounding interest rate.
+ */
+export class InterestRate {
+
+    static __wrap(ptr) {
+        ptr = ptr >>> 0;
+        const obj = Object.create(InterestRate.prototype);
+        obj.__wbg_ptr = ptr;
+        InterestRateFinalization.register(obj, obj.__wbg_ptr, obj);
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.__wbg_ptr;
+        this.__wbg_ptr = 0;
+        InterestRateFinalization.unregister(this);
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_interestrate_free(ptr, 0);
+    }
+    /**
+     * @param {number} apy
+     */
+    constructor(apy) {
+        try {
+            const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
+            wasm.interestrate_new(retptr, apy);
+            var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
+            var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
+            var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
+            if (r2) {
+                throw takeObject(r1);
+            }
+            this.__wbg_ptr = r0 >>> 0;
+            InterestRateFinalization.register(this, this.__wbg_ptr, this);
+            return this;
+        } finally {
+            wasm.__wbindgen_add_to_stack_pointer(16);
+        }
+    }
+    /**
+     * @returns {number}
+     */
+    get apy() {
+        const ret = wasm.interestrate_apy(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @returns {InterestRate}
+     */
+    static get zero() {
+        const ret = wasm.interestrate_zero();
+        return InterestRate.__wrap(ret);
     }
 }
 
@@ -2208,12 +2340,14 @@ export class Page {
     }
     /**
      * @param {Book} book
+     * @param {BookConfig} config
      * @param {number} unixTimestamp
      * @returns {number}
      */
-    projectRewards(book, unixTimestamp) {
+    projectRewards(book, config, unixTimestamp) {
         _assertClass(book, Book);
-        const ret = wasm.page_projectRewards(this.__wbg_ptr, book.__wbg_ptr, unixTimestamp);
+        _assertClass(config, BookConfig);
+        const ret = wasm.page_projectRewards(this.__wbg_ptr, book.__wbg_ptr, config.__wbg_ptr, unixTimestamp);
         return ret;
     }
 }
@@ -2906,14 +3040,14 @@ export class Schedule {
     /**
      * @returns {number}
      */
-    get warmup_length() {
+    get warmupLength() {
         const ret = wasm.auctionconfig_decayRate(this.__wbg_ptr);
         return ret;
     }
     /**
      * @returns {number}
      */
-    get total_length() {
+    get totalLength() {
         const ret = wasm.auctionconfig_endScale(this.__wbg_ptr);
         return ret;
     }
@@ -2928,8 +3062,8 @@ export class Schedule {
     /**
      * @returns {number}
      */
-    get total_emission() {
-        const ret = wasm.schedule_total_emission(this.__wbg_ptr);
+    get totalEmission() {
+        const ret = wasm.schedule_totalEmission(this.__wbg_ptr);
         return ret;
     }
 }
@@ -3041,7 +3175,7 @@ const StabilityFinalization = (typeof FinalizationRegistry === 'undefined')
  * A liquidity pool allowing 1:1 swapping between on-demand minted DVD and a
  * blue-chip stablecoin. This helps to stabilize the market price of DVD.
  *
- * To protect against depegs, a `mint_limit` is set by governance: the maximum
+ * To protect against depegs, a `max_deposit` is set by governance: the maximum
  * amount, in USD, that the protocol is willing to lose in the event of a depeg.
  */
 export class Stability {
@@ -3116,14 +3250,14 @@ export class Stability {
     /**
      * @returns {number}
      */
-    get minted() {
+    get deposited() {
         const ret = wasm.collateral_maxDeposit(this.__wbg_ptr);
         return ret;
     }
     /**
      * @returns {number}
      */
-    get mintLimit() {
+    get maxDeposit() {
         const ret = wasm.collateral_deposited(this.__wbg_ptr);
         return ret;
     }
@@ -3389,11 +3523,11 @@ export class StabilitySellDvd {
     }
 }
 
-const StabilityUpdateMintLimitFinalization = (typeof FinalizationRegistry === 'undefined')
+const StabilityUpdateMaxDepositFinalization = (typeof FinalizationRegistry === 'undefined')
     ? { register: () => {}, unregister: () => {} }
-    : new FinalizationRegistry(ptr => wasm.__wbg_stabilityupdatemintlimit_free(ptr >>> 0, 1));
+    : new FinalizationRegistry(ptr => wasm.__wbg_stabilityupdatemaxdeposit_free(ptr >>> 0, 1));
 /**
- * Updates the mint limit for a stability pool
+ * Updates the maximum deposit for a stability pool
  *
  * Accounts expected:
  *
@@ -3401,27 +3535,27 @@ const StabilityUpdateMintLimitFinalization = (typeof FinalizationRegistry === 'u
  * 1. `[writable]` Stability account (PDA)
  * 2. `[]` World account (PDA)
  */
-export class StabilityUpdateMintLimit {
+export class StabilityUpdateMaxDeposit {
 
     __destroy_into_raw() {
         const ptr = this.__wbg_ptr;
         this.__wbg_ptr = 0;
-        StabilityUpdateMintLimitFinalization.unregister(this);
+        StabilityUpdateMaxDepositFinalization.unregister(this);
         return ptr;
     }
 
     free() {
         const ptr = this.__destroy_into_raw();
-        wasm.__wbg_stabilityupdatemintlimit_free(ptr, 0);
+        wasm.__wbg_stabilityupdatemaxdeposit_free(ptr, 0);
     }
     /**
-     * @param {number} newMintLimit
+     * @param {number} newMaxDeposit
      * @returns {Uint8Array}
      */
-    static getData(newMintLimit) {
+    static getData(newMaxDeposit) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            wasm.stabilityupdatemintlimit_getData(retptr, newMintLimit);
+            wasm.stabilityupdatemaxdeposit_getData(retptr, newMaxDeposit);
             var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
             var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
             var v1 = getArrayU8FromWasm0(r0, r1).slice();
@@ -3446,7 +3580,7 @@ export class StabilityUpdateMintLimit {
             const len1 = WASM_VECTOR_LEN;
             const ptr2 = passArray8ToWasm0(stableMintKey, wasm.__wbindgen_export_0);
             const len2 = WASM_VECTOR_LEN;
-            wasm.stabilityupdatemintlimit_getAccounts(retptr, ptr0, len0, ptr1, len1, ptr2, len2);
+            wasm.stabilityupdatemaxdeposit_getAccounts(retptr, ptr0, len0, ptr1, len1, ptr2, len2);
             var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
             var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
             var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
@@ -5325,6 +5459,13 @@ export class Vesting {
     /**
      * @returns {number}
      */
+    get creationTime() {
+        const ret = wasm.vesting_creationTime(this.__wbg_ptr);
+        return ret;
+    }
+    /**
+     * @returns {number}
+     */
     get distributed() {
         const ret = wasm.vesting_distributed(this.__wbg_ptr);
         return ret;
@@ -5587,6 +5728,21 @@ export class World {
         wasm.__wbg_set_world_stable_dvd(this.__wbg_ptr, ptr0);
     }
     /**
+     * @returns {DvdPrice}
+     */
+    get dvd_price() {
+        const ret = wasm.__wbg_get_world_dvd_price(this.__wbg_ptr);
+        return DvdPrice.__wrap(ret);
+    }
+    /**
+     * @param {DvdPrice} arg0
+     */
+    set dvd_price(arg0) {
+        _assertClass(arg0, DvdPrice);
+        var ptr0 = arg0.__destroy_into_raw();
+        wasm.__wbg_set_world_dvd_price(this.__wbg_ptr, ptr0);
+    }
+    /**
      * @returns {Offering}
      */
     get offering() {
@@ -5714,6 +5870,13 @@ export class World {
         return World.__wrap(ret);
     }
     /**
+     * @returns {DvdPrice}
+     */
+    get dvdPrice() {
+        const ret = wasm.world_dvdPrice(this.__wbg_ptr);
+        return DvdPrice.__wrap(ret);
+    }
+    /**
      * @returns {StableDvd}
      */
     get stableDvd() {
@@ -5758,24 +5921,18 @@ export class WorldCreate {
         wasm.__wbg_worldcreate_free(ptr, 0);
     }
     /**
-     * @param {Schedule} debtSchedule
-     * @param {Schedule} savingsSchedule
      * @param {Uint8Array} vestingRecipient
      * @param {Schedule} vestingSchedule
      * @returns {Uint8Array}
      */
-    static getData(debtSchedule, savingsSchedule, vestingRecipient, vestingSchedule) {
+    static getData(vestingRecipient, vestingSchedule) {
         try {
             const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-            _assertClass(debtSchedule, Schedule);
-            var ptr0 = debtSchedule.__destroy_into_raw();
-            _assertClass(savingsSchedule, Schedule);
-            var ptr1 = savingsSchedule.__destroy_into_raw();
-            const ptr2 = passArray8ToWasm0(vestingRecipient, wasm.__wbindgen_export_0);
-            const len2 = WASM_VECTOR_LEN;
+            const ptr0 = passArray8ToWasm0(vestingRecipient, wasm.__wbindgen_export_0);
+            const len0 = WASM_VECTOR_LEN;
             _assertClass(vestingSchedule, Schedule);
-            var ptr3 = vestingSchedule.__destroy_into_raw();
-            wasm.worldcreate_getData(retptr, ptr0, ptr1, ptr2, len2, ptr3);
+            var ptr1 = vestingSchedule.__destroy_into_raw();
+            wasm.worldcreate_getData(retptr, ptr0, len0, ptr1);
             var r0 = getDataViewMemory0().getInt32(retptr + 4 * 0, true);
             var r1 = getDataViewMemory0().getInt32(retptr + 4 * 1, true);
             var r2 = getDataViewMemory0().getInt32(retptr + 4 * 2, true);
@@ -5783,9 +5940,9 @@ export class WorldCreate {
             if (r3) {
                 throw takeObject(r2);
             }
-            var v5 = getArrayU8FromWasm0(r0, r1).slice();
+            var v3 = getArrayU8FromWasm0(r0, r1).slice();
             wasm.__wbindgen_export_2(r0, r1 * 1, 1);
-            return v5;
+            return v3;
         } finally {
             wasm.__wbindgen_add_to_stack_pointer(16);
         }

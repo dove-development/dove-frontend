@@ -1,9 +1,14 @@
 import { PublicKey } from "@solana/web3.js";
 
 export const DOVE_PROGRAM_ID = new PublicKey(
-    "AnX6SwnicLbaUSCV4i1iNgLP4t1Y6ybudLBnrfyMpjmN"
+    "4VTAkPgexLTY4bTqAEvuZdqyyD5ei4ePJ9FaSSDXHaVL"
 );
-export const RPC_URL = "https://rpc.dove.money";
+export const RPC_URL = "http://127.0.0.1:8899";
 export const ASSET_DECIMALS = 4;
-export const DEBUG = false;
+export const DEBUG = true;
 export const MOCK_BACKEND = false;
+
+// For instant loading
+export const DVD_INTEREST_RATE = 0.07;
+export const DVD_BORROW_RATE = 0.08;
+export const TVL = DEBUG ? 5682520334 : 169.24;

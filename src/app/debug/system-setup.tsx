@@ -13,7 +13,8 @@ import CollateralCache from "@/lib/cache/collateral-cache";
 import AssetCache from "@/lib/cache/asset-cache";
 import StabilityCache from "@/lib/cache/stability-cache";
 import Ledger from "@/lib/ledger";
-import { unwrap } from "@/lib/utils";
+import MintButton from "./mint-button";
+import StablecoinCache from "@/lib/cache/stablecoin-cache";
 
 interface SystemSetupProps {
     createMetadata: boolean;
@@ -24,6 +25,7 @@ interface SystemSetupProps {
     worldCache?: WorldCache;
     authorityCache?: AuthorityCache;
     collateralCache?: CollateralCache;
+    stablecoinCache?: StablecoinCache;
     assetCache?: AssetCache;
     stabilityCache?: StabilityCache;
     ledger: Ledger;
@@ -41,6 +43,7 @@ export default function SystemSetup({
     worldCache,
     authorityCache,
     collateralCache,
+    stablecoinCache,
     assetCache,
     stabilityCache,
     ledger,
@@ -48,40 +51,6 @@ export default function SystemSetup({
     setDvdMint,
     setDoveMint
 }: SystemSetupProps) {
-    async function createDvdMint() {
-        const authority = unwrap(authorityKey, "Authority key not found");
-        const pubkey = unwrap(wallet.pubkey, "Wallet not connected");
-        const mint = await ledger.createMint({
-            name: "Dove USD",
-            symbol: "DVD",
-            decimals: 9,
-            initialSupply: 0,
-            mintAuthority: authority,
-            freezeAuthority: null,
-            updateAuthority: pubkey,
-            createMetadata: createMetadata,
-            metadataUrl: ""
-        });
-        setDvdMint(mint);
-    }
-
-    async function createDoveMint() {
-        const authority = unwrap(authorityKey, "Authority key not found");
-        const pubkey = unwrap(wallet.pubkey, "Wallet not connected");
-        const mint = await ledger.createMint({
-            name: "Dove",
-            symbol: "DOVE",
-            decimals: 9,
-            initialSupply: 0,
-            mintAuthority: authority,
-            freezeAuthority: null,
-            updateAuthority: pubkey,
-            createMetadata: createMetadata,
-            metadataUrl: ""
-        });
-        setDoveMint(mint);
-    }
-
     async function createWorld() {
         if (!dvdMint || !doveMint) {
             throw new Error("DVD and DOVE mints must be created first");
@@ -95,7 +64,7 @@ export default function SystemSetup({
 
     return (
         <Card className="mb-8 shadow-lg bg-gray-800 border-gray-700">
-            <CardHeader className="bg-gradient-to-r from-green-900 to-teal-900 text-white">
+            <CardHeader className="bg-gradient-to-r from-green-900 to-teal-900 text-white rounded-t-lg">
                 <CardTitle className="text-xl sm:text-2xl">System Setup</CardTitle>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-6">
@@ -121,17 +90,31 @@ export default function SystemSetup({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <SetupButton
-                        onClick={createDvdMint}
-                        disabled={!!dvdMint || !!worldCache}
-                        text="Create DVD Mint"
-                        status={dvdMint ? "created" : "not-created"}
+                    <MintButton
+                        name="Dove USD"
+                        symbol="DVD"
+                        decimals={9}
+                        initialSupply={0}
+                        disabled={!!worldCache}
+                        created={!!dvdMint}
+                        createMetadata={createMetadata}
+                        wallet={wallet}
+                        authorityKey={authorityKey}
+                        ledger={ledger}
+                        onMintCreated={setDvdMint}
                     />
-                    <SetupButton
-                        onClick={createDoveMint}
-                        disabled={!!doveMint || !!worldCache}
-                        text="Create DOVE Mint"
-                        status={doveMint ? "created" : "not-created"}
+                    <MintButton
+                        name="Dove"
+                        symbol="DOVE"
+                        decimals={9}
+                        initialSupply={0}
+                        disabled={!!worldCache}
+                        created={!!doveMint}
+                        createMetadata={createMetadata}
+                        wallet={wallet}
+                        authorityKey={authorityKey}
+                        ledger={ledger}
+                        onMintCreated={setDoveMint}
                     />
                 </div>
 
@@ -166,9 +149,27 @@ export default function SystemSetup({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    {Stablecoin.LIST.filter(
-                        (stablecoin) => stablecoin.hasStability
-                    ).map((stablecoin) => (
+                    {Stablecoin.LIST.filter(x => !x.hasStability).map((stablecoin) => (
+                        <MintButton
+                            name={stablecoin.name}
+                            key={stablecoin.symbol}
+                            symbol={stablecoin.symbol}
+                            decimals={9}
+                            initialSupply={Math.floor(Math.random() * 10 ** 9)}
+                            disabled={!worldCache || !stablecoinCache}
+                            created={!!stablecoinCache?.get(stablecoin)}
+                            createMetadata={createMetadata}
+                            wallet={wallet}
+                            authorityKey={authorityKey}
+                            ledger={ledger}
+                            onMintCreated={() => {}}
+                            keypair={stablecoin.debugKeypair}
+                        />
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    {Stablecoin.LIST.filter(x => x.hasStability).map((stablecoin) => (
                         <StabilitySetup
                             key={stablecoin.symbol}
                             stablecoin={stablecoin}

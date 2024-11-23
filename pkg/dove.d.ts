@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export function initializePanicHook(): void;
 /**
  * Initialize Javascript logging and panic handler
  */
@@ -95,12 +96,12 @@ export class Book {
    */
   projectTotal(config: BookConfig, unixTimestamp: number): number;
   /**
+   * @param {BookConfig} config
    * @param {number} unixTimestamp
    * @returns {number}
    */
-  projectRewards(unixTimestamp: number): number;
+  projectRewards(config: BookConfig, unixTimestamp: number): number;
   readonly creationTime: number;
-  readonly rewardSchedule: Schedule;
 }
 /**
  * Configuration for a Book
@@ -108,10 +109,12 @@ export class Book {
 export class BookConfig {
   free(): void;
   /**
-   * @param {number} apy
+   * @param {InterestRate} interestRate
+   * @param {Schedule} rewardSchedule
    */
-  constructor(apy: number);
-  readonly apy: number;
+  constructor(interestRate: InterestRate, rewardSchedule: Schedule);
+  readonly interestRate: InterestRate;
+  readonly rewardSchedule: Schedule;
 }
 export class Collateral {
   free(): void;
@@ -212,6 +215,7 @@ export class Config {
   free(): void;
   /**
    * @param {number} maxLtv
+   * @param {InterestRate} dvdInterestRate
    * @param {Oracle} doveOracle
    * @param {AuctionConfig} auctionConfig
    * @param {BookConfig} debtConfig
@@ -220,10 +224,11 @@ export class Config {
    * @param {BookConfig} savingsConfig
    * @param {VaultConfig} vaultConfig
    */
-  constructor(maxLtv: number, doveOracle: Oracle, auctionConfig: AuctionConfig, debtConfig: BookConfig, flashMintConfig: FlashMintConfig, offeringConfig: OfferingConfig, savingsConfig: BookConfig, vaultConfig: VaultConfig);
+  constructor(maxLtv: number, dvdInterestRate: InterestRate, doveOracle: Oracle, auctionConfig: AuctionConfig, debtConfig: BookConfig, flashMintConfig: FlashMintConfig, offeringConfig: OfferingConfig, savingsConfig: BookConfig, vaultConfig: VaultConfig);
   readonly auctionConfig: AuctionConfig;
   readonly debtConfig: BookConfig;
   readonly doveOracle: Oracle;
+  readonly dvdInterestRate: InterestRate;
   readonly flashMintConfig: FlashMintConfig;
   readonly maxLtv: number;
   readonly offeringConfig: OfferingConfig;
@@ -270,6 +275,18 @@ export class Decimal {
    * @returns {bigint}
    */
   static numberToTokenAmount(amount: number, decimals: number): bigint;
+}
+/**
+ * Calculates the current price of DVD.
+ */
+export class DvdPrice {
+  free(): void;
+  /**
+   * @param {InterestRate} interestRate
+   * @param {number} unixTimestamp
+   * @returns {Decimal}
+   */
+  projectPrice(interestRate: InterestRate, unixTimestamp: number): Decimal;
 }
 export class FlashMint {
   free(): void;
@@ -392,6 +409,18 @@ export class Instructions {
    * @param {Instruction} instruction
    */
   push(instruction: Instruction): void;
+}
+/**
+ * A continuously compounding interest rate.
+ */
+export class InterestRate {
+  free(): void;
+  /**
+   * @param {number} apy
+   */
+  constructor(apy: number);
+  readonly apy: number;
+  static readonly zero: InterestRate;
 }
 /**
  * A vanilla Ed25519 key pair
@@ -571,10 +600,11 @@ export class Page {
   projectTotal(book: Book, config: BookConfig, unixTimestamp: number): number;
   /**
    * @param {Book} book
+   * @param {BookConfig} config
    * @param {number} unixTimestamp
    * @returns {number}
    */
-  projectRewards(book: Book, unixTimestamp: number): number;
+  projectRewards(book: Book, config: BookConfig, unixTimestamp: number): number;
 }
 /**
  * The address of a [Solana account][acc].
@@ -786,9 +816,9 @@ export class Schedule {
    */
   at(t: number): number;
   readonly maximum: number;
-  readonly total_emission: number;
-  readonly total_length: number;
-  readonly warmup_length: number;
+  readonly totalEmission: number;
+  readonly totalLength: number;
+  readonly warmupLength: number;
 }
 export class Sovereign {
   free(): void;
@@ -820,7 +850,7 @@ export class SovereignUpdate {
  * A liquidity pool allowing 1:1 swapping between on-demand minted DVD and a
  * blue-chip stablecoin. This helps to stabilize the market price of DVD.
  *
- * To protect against depegs, a `mint_limit` is set by governance: the maximum
+ * To protect against depegs, a `max_deposit` is set by governance: the maximum
  * amount, in USD, that the protocol is willing to lose in the event of a depeg.
  */
 export class Stability {
@@ -836,9 +866,9 @@ export class Stability {
    * @returns {Stability}
    */
   static fromBytes(bytes: Uint8Array): Stability;
+  readonly deposited: number;
+  readonly maxDeposit: number;
   readonly mintKey: Uint8Array;
-  readonly mintLimit: number;
-  readonly minted: number;
 }
 /**
  * Buys DVD from a stability pool
@@ -931,7 +961,7 @@ export class StabilitySellDvd {
   static getAccounts(programKey: Uint8Array, userKey: Uint8Array, dvdMintKey: Uint8Array, stableMintKey: Uint8Array): (AccountWasm)[];
 }
 /**
- * Updates the mint limit for a stability pool
+ * Updates the maximum deposit for a stability pool
  *
  * Accounts expected:
  *
@@ -939,13 +969,13 @@ export class StabilitySellDvd {
  * 1. `[writable]` Stability account (PDA)
  * 2. `[]` World account (PDA)
  */
-export class StabilityUpdateMintLimit {
+export class StabilityUpdateMaxDeposit {
   free(): void;
   /**
-   * @param {number} newMintLimit
+   * @param {number} newMaxDeposit
    * @returns {Uint8Array}
    */
-  static getData(newMintLimit: number): Uint8Array;
+  static getData(newMaxDeposit: number): Uint8Array;
   /**
    * @param {Uint8Array} programKey
    * @param {Uint8Array} sovereignKey
@@ -1467,6 +1497,7 @@ export class Vesting {
    * @returns {number}
    */
   getEmissionDue(unixTimestamp: number): number;
+  readonly creationTime: number;
   readonly distributed: number;
   readonly recipient: Uint8Array;
   readonly schedule: Schedule;
@@ -1522,7 +1553,7 @@ export class VestingUpdateRecipient {
 }
 /**
  * The struct containing all global state.
- * 
+ *
  * **Safety**: Never overwrite the fields of this struct directly (/world\.(.+) = /).
  * Doing so is unsafe and violates critical invariants.
  * Always use the associated functions on the state objects to modify state.
@@ -1547,6 +1578,8 @@ export class World {
   debt: Book;
   dove: Token;
   dvd: Token;
+  readonly dvdPrice: DvdPrice;
+  
   readonly flashMint: FlashMint;
   
   offering: Offering;
@@ -1571,13 +1604,11 @@ export class World {
 export class WorldCreate {
   free(): void;
   /**
-   * @param {Schedule} debtSchedule
-   * @param {Schedule} savingsSchedule
    * @param {Uint8Array} vestingRecipient
    * @param {Schedule} vestingSchedule
    * @returns {Uint8Array}
    */
-  static getData(debtSchedule: Schedule, savingsSchedule: Schedule, vestingRecipient: Uint8Array, vestingSchedule: Schedule): Uint8Array;
+  static getData(vestingRecipient: Uint8Array, vestingSchedule: Schedule): Uint8Array;
   /**
    * @param {Uint8Array} programKey
    * @param {Uint8Array} sovereignKey
@@ -1599,6 +1630,7 @@ export interface InitOutput {
   readonly collateralcreate_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
   readonly collateralsetoracle_getData: (a: number, b: number, c: number, d: number) => void;
   readonly collateralsetoracle_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
+  readonly __wbg_collateralupdatemaxdeposit_free: (a: number, b: number) => void;
   readonly collateralupdatemaxdeposit_getData: (a: number, b: number) => void;
   readonly configupdate_getData: (a: number, b: number) => void;
   readonly configupdate_getAccounts: (a: number, b: number, c: number, d: number, e: number) => void;
@@ -1627,8 +1659,8 @@ export interface InitOutput {
   readonly stabilitybuydvd_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
   readonly stabilityselldvd_getData: (a: number, b: number) => void;
   readonly stabilityselldvd_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
-  readonly stabilityupdatemintlimit_getData: (a: number, b: number) => void;
-  readonly stabilityupdatemintlimit_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
+  readonly stabilityupdatemaxdeposit_getData: (a: number, b: number) => void;
+  readonly stabilityupdatemaxdeposit_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
   readonly __wbg_userfeedcreate_free: (a: number, b: number) => void;
   readonly userfeedcreate_getData: (a: number, b: number) => void;
   readonly userfeedcreate_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
@@ -1662,8 +1694,7 @@ export interface InitOutput {
   readonly vestingclaim_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
   readonly vestingupdaterecipient_getData: (a: number) => void;
   readonly vestingupdaterecipient_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
-  readonly __wbg_worldcreate_free: (a: number, b: number) => void;
-  readonly worldcreate_getData: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
+  readonly worldcreate_getData: (a: number, b: number, c: number, d: number) => void;
   readonly worldcreate_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
   readonly __wbg_auctionconfig_free: (a: number, b: number) => void;
   readonly auctionconfig_new: (a: number, b: number, c: number, d: number) => void;
@@ -1672,27 +1703,31 @@ export interface InitOutput {
   readonly auctionconfig_decayRate: (a: number) => number;
   readonly auctionconfig_endScale: (a: number) => number;
   readonly __wbg_bookconfig_free: (a: number, b: number) => void;
-  readonly bookconfig_new: (a: number) => number;
-  readonly bookconfig_apy: (a: number) => number;
+  readonly bookconfig_new: (a: number, b: number) => number;
+  readonly bookconfig_interestRate: (a: number) => number;
+  readonly bookconfig_rewardSchedule: (a: number) => number;
   readonly __wbg_book_free: (a: number, b: number) => void;
   readonly book_projectTotal: (a: number, b: number, c: number) => number;
-  readonly book_projectRewards: (a: number, b: number) => number;
-  readonly book_rewardSchedule: (a: number) => number;
+  readonly book_projectRewards: (a: number, b: number, c: number) => number;
   readonly book_creationTime: (a: number) => number;
   readonly decimal_tokenAmountToNumber: (a: number, b: number) => number;
   readonly decimal_numberToTokenAmount: (a: number, b: number) => number;
+  readonly interestrate_new: (a: number, b: number) => void;
+  readonly interestrate_apy: (a: number) => number;
+  readonly interestrate_zero: () => number;
   readonly page_projectTotal: (a: number, b: number, c: number, d: number) => number;
-  readonly page_projectRewards: (a: number, b: number, c: number) => number;
+  readonly page_projectRewards: (a: number, b: number, c: number, d: number) => number;
   readonly schedule_new: (a: number, b: number, c: number, d: number) => void;
   readonly schedule_at: (a: number, b: number) => number;
-  readonly schedule_total_emission: (a: number) => number;
+  readonly schedule_totalEmission: (a: number) => number;
   readonly oracle_new_wasm: (a: number, b: number, c: number, d: number) => void;
   readonly oracle_key: (a: number, b: number) => void;
   readonly oracle_zero: () => number;
   readonly oracle_getPriceNegativeIfStale: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
   readonly userfeed_derive_key: (a: number, b: number, c: number, d: number, e: number, f: number) => void;
   readonly __wbg_config_free: (a: number, b: number) => void;
-  readonly config_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => void;
+  readonly config_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => void;
+  readonly config_dvdInterestRate: (a: number) => number;
   readonly config_doveOracle: (a: number) => number;
   readonly config_auctionConfig: (a: number) => number;
   readonly config_debtConfig: (a: number) => number;
@@ -1700,10 +1735,10 @@ export interface InitOutput {
   readonly config_offeringConfig: (a: number) => number;
   readonly config_savingsConfig: (a: number) => number;
   readonly config_vaultConfig: (a: number) => number;
+  readonly __wbg_dvdprice_free: (a: number, b: number) => void;
+  readonly dvdprice_projectPrice: (a: number, b: number, c: number) => number;
   readonly __wbg_flashmintconfig_free: (a: number, b: number) => void;
   readonly flashmintconfig_new: (a: number, b: number) => number;
-  readonly __wbg_flashmint_free: (a: number, b: number) => void;
-  readonly __wbg_offeringconfig_free: (a: number, b: number) => void;
   readonly offeringconfig_new: (a: number, b: number, c: number, d: number) => number;
   readonly offeringconfig_doveOfferingSize: (a: number) => number;
   readonly offering_amount: (a: number) => number;
@@ -1717,6 +1752,7 @@ export interface InitOutput {
   readonly vesting_recipient: (a: number, b: number) => void;
   readonly vesting_schedule: (a: number) => number;
   readonly vesting_getEmissionDue: (a: number, b: number) => number;
+  readonly vesting_creationTime: (a: number) => number;
   readonly vesting_distributed: (a: number) => number;
   readonly __wbg_authority_free: (a: number, b: number) => void;
   readonly authority_deriveKey: (a: number, b: number, c: number) => void;
@@ -1734,7 +1770,6 @@ export interface InitOutput {
   readonly stability_deriveKey: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly stability_fromBytes: (a: number, b: number, c: number) => void;
   readonly stability_mintKey: (a: number, b: number) => void;
-  readonly __wbg_vaultconfig_free: (a: number, b: number) => void;
   readonly vaultconfig_new: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly vaultconfig_zero: () => number;
   readonly vaultconfig_auctionFailureRewardRate: (a: number) => number;
@@ -1760,6 +1795,8 @@ export interface InitOutput {
   readonly __wbg_set_world_savings: (a: number, b: number) => void;
   readonly __wbg_get_world_stable_dvd: (a: number) => number;
   readonly __wbg_set_world_stable_dvd: (a: number, b: number) => void;
+  readonly __wbg_get_world_dvd_price: (a: number) => number;
+  readonly __wbg_set_world_dvd_price: (a: number, b: number) => void;
   readonly __wbg_get_world_offering: (a: number) => number;
   readonly __wbg_set_world_offering: (a: number, b: number) => void;
   readonly __wbg_get_world_flash_mint: (a: number) => number;
@@ -1773,6 +1810,7 @@ export interface InitOutput {
   readonly world_deriveKey: (a: number, b: number, c: number) => void;
   readonly world_fromBytes: (a: number, b: number, c: number) => void;
   readonly world_zero: () => number;
+  readonly world_dvdPrice: (a: number) => number;
   readonly world_stableDvd: (a: number) => number;
   readonly world_flashMint: (a: number) => number;
   readonly reserve_mintKey: (a: number, b: number) => void;
@@ -1785,8 +1823,8 @@ export interface InitOutput {
   readonly accountwasm_is_writable: (a: number) => number;
   readonly entrypoint: (a: number) => number;
   readonly schedule_maximum: (a: number) => number;
-  readonly schedule_warmup_length: (a: number) => number;
-  readonly schedule_total_length: (a: number) => number;
+  readonly schedule_warmupLength: (a: number) => number;
+  readonly schedule_totalLength: (a: number) => number;
   readonly config_maxLtv: (a: number) => number;
   readonly flashmintconfig_fee: (a: number) => number;
   readonly flashmintconfig_limit: (a: number) => number;
@@ -1794,13 +1832,14 @@ export interface InitOutput {
   readonly offeringconfig_deficitLimit: (a: number) => number;
   readonly offeringconfig_dvdOfferingSize: (a: number) => number;
   readonly stabledvd_circulating: (a: number) => number;
-  readonly stability_minted: (a: number) => number;
-  readonly stability_mintLimit: (a: number) => number;
+  readonly stability_deposited: (a: number) => number;
+  readonly stability_maxDeposit: (a: number) => number;
   readonly vaultconfig_liquidationRewardCap: (a: number) => number;
   readonly vaultconfig_liquidationRewardRate: (a: number) => number;
   readonly vaultconfig_auctionFailureRewardCap: (a: number) => number;
   readonly reserve_balance: (a: number) => number;
   readonly token_supply: (a: number) => number;
+  readonly initializePanicHook: () => void;
   readonly savingswithdraw_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
   readonly __wbg_collateralcreate_free: (a: number, b: number) => void;
   readonly __wbg_flashmintbegin_free: (a: number, b: number) => void;
@@ -1816,7 +1855,7 @@ export interface InitOutput {
   readonly __wbg_stabilitycreate_free: (a: number, b: number) => void;
   readonly __wbg_stabilitybuydvd_free: (a: number, b: number) => void;
   readonly __wbg_stabilityselldvd_free: (a: number, b: number) => void;
-  readonly __wbg_stabilityupdatemintlimit_free: (a: number, b: number) => void;
+  readonly __wbg_stabilityupdatemaxdeposit_free: (a: number, b: number) => void;
   readonly __wbg_userfeedsetprice_free: (a: number, b: number) => void;
   readonly __wbg_vaultborrow_free: (a: number, b: number) => void;
   readonly __wbg_vaultclaimrewards_free: (a: number, b: number) => void;
@@ -1831,17 +1870,21 @@ export interface InitOutput {
   readonly __wbg_vaultwithdraw_free: (a: number, b: number) => void;
   readonly __wbg_vestingclaim_free: (a: number, b: number) => void;
   readonly __wbg_vestingupdaterecipient_free: (a: number, b: number) => void;
-  readonly __wbg_collateralupdatemaxdeposit_free: (a: number, b: number) => void;
+  readonly __wbg_worldcreate_free: (a: number, b: number) => void;
   readonly __wbg_decimal_free: (a: number, b: number) => void;
+  readonly __wbg_interestrate_free: (a: number, b: number) => void;
+  readonly __wbg_page_free: (a: number, b: number) => void;
   readonly __wbg_schedule_free: (a: number, b: number) => void;
   readonly __wbg_oracle_free: (a: number, b: number) => void;
   readonly __wbg_vaultbuycollateral_free: (a: number, b: number) => void;
   readonly __wbg_configupdate_free: (a: number, b: number) => void;
   readonly __wbg_userfeed_free: (a: number, b: number) => void;
-  readonly __wbg_page_free: (a: number, b: number) => void;
+  readonly __wbg_flashmint_free: (a: number, b: number) => void;
+  readonly __wbg_offeringconfig_free: (a: number, b: number) => void;
   readonly __wbg_offering_free: (a: number, b: number) => void;
   readonly __wbg_stabledvd_free: (a: number, b: number) => void;
   readonly __wbg_stability_free: (a: number, b: number) => void;
+  readonly __wbg_vaultconfig_free: (a: number, b: number) => void;
   readonly __wbg_reserve_free: (a: number, b: number) => void;
   readonly __wbg_collateralsetoracle_free: (a: number, b: number) => void;
   readonly collateralupdatemaxdeposit_getAccounts: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;

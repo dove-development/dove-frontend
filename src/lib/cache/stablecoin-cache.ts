@@ -33,11 +33,13 @@ export default class StablecoinCache extends HashMap<Stablecoin, StablecoinInfo>
             )
         ]);
 
-        for (const [[stablecoin, mintMaybe], account] of zip(
+        for (const [[stablecoin, mint], account] of zip(
             zip(Stablecoin.LIST, mints),
             accounts
         )) {
-            const mint = unwrap(mintMaybe, `Can't find mint for ${stablecoin.symbol}`);
+            if (!mint) {
+                continue;
+            }
             const balance = account
                 ? Decimal.tokenAmountToNumber(account.amount, mint.decimals)
                 : 0;

@@ -12,6 +12,9 @@ import stack from "@/images/stack.png";
 import vault from "@/images/vault.png";
 import doveToken from "@/images/dove_token.png";
 import { JupiterLink } from "@/components/interface/jupiter-link";
+import SvgIcon from "@/components/interface/svg-icon";
+import { DVD_BORROW_RATE, DVD_INTEREST_RATE, TVL } from "@/lib/constants";
+import { nf } from "@/lib/utils";
 
 export default function Home() {
     return (
@@ -27,9 +30,9 @@ export default function Home() {
                 alt="Dove background"
                 className="block lg:hidden absolute top-0 left-0 w-full mt-[-6%] object-cover z-[-3]"
             />
-            <section className="mx-auto mt-[calc(80vw-80px)] lg:mx-0 lg:mt-0 lg:mb-0 lg:px-0 lg:h-[calc(100vh-80px)] lg:pl-16 lg:flex lg:w-1/2 lg:items-center">
+            <section className="mx-auto mt-[calc(80vw-80px)] lg:mx-0 lg:mt-0 lg:mb-0 lg:px-0 lg:h-[calc(100vh-80px)] lg:pl-24 lg:flex lg:w-1/2 lg:items-center">
                 <div className="text-center lg:text-left justify-end lg:mt-[-8%] lg:ml-auto px-0">
-                    <h1 className="text-[40px] xxs:text-[48px] xs:text-[60px] sm:text-[72px] md:text-[80px] xl:text-[84px] 3xl:text-[96px] font-bold leading-none text-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                    <h1 className="text-[40px] xxs:text-[48px] xs:text-[60px] sm:text-[72px] md:text-[80px] lg:text-[84px] 3xl:text-[96px] font-bold leading-none text-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
                         <span
                             style={{
                                 WebkitTextFillColor: "transparent",
@@ -40,36 +43,43 @@ export default function Home() {
                         </span>
                         <br />
                         <span className="text-shadow-[0_3px_6px_rgba(0,0,0,0.9)]">
-                            decentralized
+                            yield-bearing
                         </span>
                         <br />
                         <span className="text-shadow-[0_3px_6px_rgba(0,0,0,0.9)]">
                             stablecoin
                         </span>
                     </h1>
-                    <p className="text-lg mx-auto max-w-xl md:max-w-3xl lg:mx-0 lg:max-w-none px-8 md:text-xl md:px-24 lg:px-0 3xl:text-2xl mt-6 mb-8 text-shadow-[0_2px_4px_rgba(0,0,0,0.9)] text-center lg:text-left">
-                        Dove USD (DVD) is a stable, decentralized currency backed
-                        <br className="hidden lg:block" /> by on-chain assets.
+                    <p className="text-lg mx-auto max-w-xl md:max-w-3xl lg:mx-0 lg:max-w-xl px-8 md:text-xl md:px-24 lg:px-0 3xl:text-2xl mt-6 mb-6 text-shadow-[0_2px_4px_rgba(0,0,0,0.9)] text-center lg:text-left">
+                        Dove USD (DVD) is the first stablecoin that automatically grows
+                        in value while you hold it.
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start px-8 lg:px-0">
-                        <Link href="/savings" className="w-full sm:w-auto">
-                            <Button className="w-full sm:w-auto h-14 md:h-auto text-lg 3xl:text-xl rounded-full py-3 px-6 text-white shadow-xl transition-all duration-300 ease-in-out hover:shadow-3xl hover:-translate-y-1 bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600 border-none">
-                                Earn at 7% APY
-                            </Button>
-                        </Link>
-                        <Link href="/vault" className="w-full sm:w-auto">
-                            <Button className="w-full sm:w-auto h-14 md:h-auto text-lg 3xl:text-xl rounded-full py-3 px-6 text-white shadow-xl transition-all duration-300 ease-in-out hover:shadow-3xl hover:-translate-y-1 bg-gradient-to-r from-blue-400 to-sky-500 hover:from-blue-500 hover:to-sky-600 border-none will-change-transform">
-                                Borrow at 8% APY
-                            </Button>
-                        </Link>
+                    <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-6 md:gap-8">
+                        <div className="text-center">
+                            <h3 className="text-4xl font-bold bg-gradient-to-b from-[#bf4b87] to-[#f082bb] bg-clip-text text-transparent">
+                                {(DVD_INTEREST_RATE * 100).toFixed(1)}%
+                            </h3>
+                            <h5 className="text-lg text-white/80">APY</h5>
+                        </div>
+                        <div className="hidden lg:block w-px h-16 bg-white/20"></div>
+                        <div className="text-center">
+                            <h3 className="text-4xl font-bold bg-gradient-to-b from-[#6363fa] to-[#9f82d5] bg-clip-text text-transparent">
+                                ${nf(TVL, 0)}
+                            </h3>
+                            <h5 className="text-lg text-white/80">TVL</h5>
+                        </div>
                         <JupiterLink
                             outputMint={"Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"}
                         >
-                            <Button
-                                variant="outline"
-                                className="w-full sm:w-auto h-14 md:h-auto text-lg 3xl:text-xl rounded-full py-3 px-6 text-white shadow-xl transition-all duration-300 ease-in-out hover:shadow-3xl hover:-translate-y-1 bg-gradient-to-r from-purple-400 to-violet-500 hover:from-purple-500 hover:to-violet-600 border-none"
-                            >
-                                Swap for DVD
+                            <Button className="w-full sm:w-auto h-auto text-xl rounded-full px-3 text-white bg-white/10 backdrop-blur-md shadow-xl transition-all duration-300 hover:shadow-3xl hover:-translate-y-1 hover:bg-white/20 border border-white/20 ease-in-out">
+                                <span className="flex items-center">
+                                    <SvgIcon
+                                        icon={"icons/dvd.svg"}
+                                        alt="DVD Icon"
+                                        className="w-[50px] h-[50px]"
+                                    />
+                                    <span className="mx-5">Swap for DVD</span>
+                                </span>
                             </Button>
                         </JupiterLink>
                     </div>
@@ -83,9 +93,9 @@ export default function Home() {
                 </div>
             </div>
 
-            <div className="mx-auto lg:max-w-8xl lg:px-32">
+            <div className="mx-auto lg:max-w-8xl lg:px-16 xl:px-32">
                 <div className="overflow-hidden mx-auto max-w-xl lg:max-w-none lg:mx-0 grid grid-cols-1 space-y-48 mb-48 lg:mb-12 lg:auto-rows-fr lg:grid-cols-1 lg:space-y-24">
-                    <section className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16 items-center px-8 lg:px-0 my-24">
+                <section className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16 items-center px-8 lg:px-0 my-24">
                         <div className="pt-4 lg:pt-0 lg:pb-0 lg:order-1 order-2 flex flex-col justify-center text-center lg:text-left">
                             <h3 className="text-3xl sm:text-4xl leading-none pb-4 font-bold bg-gradient-to-r from-[#7175f7] via-[#d652d4] to-[#f54640] bg-clip-text text-transparent">
                                 Fully decentralized
@@ -95,16 +105,16 @@ export default function Home() {
                                 eliminating reliance on centralized entities.
                             </p>
                         </div>
-                        <div className="lg:order-2 order-1 relative w-full h-full">
+                        <div className="lg:order-2 order-1 relative w-full aspect-square">
                             <Image
                                 src={spotlight}
                                 alt="Spotlight background"
-                                className="absolute top-0 left-0 w-full h-full object-contain"
+                                className="absolute top-0 left-0 w-full h-full object-cover"
                             />
                             <Image
                                 src={decentralizedAssets}
                                 alt="DVD Decentralized Assets"
-                                className="relative w-full h-full object-contain transition-transform duration-1000 hover:-translate-y-[10px]"
+                                className="relative w-full h-full object-cover transition-transform duration-1000 hover:-translate-y-[10px]"
                             />
                         </div>
                     </section>
@@ -112,7 +122,7 @@ export default function Home() {
                         <Image
                             src={stack}
                             alt="DVD Staking"
-                            className="lg:hidden relative h-full w-[200%] object-cover max-w-none z-[-1]"
+                            className="lg:hidden object-cover w-[200%] max-w-none z-[-1]"
                         />
                         <Image
                             src={stack}
@@ -125,16 +135,17 @@ export default function Home() {
                                 Grow your wealth effortlessly
                             </h3>
                             <p className="text-lg lg:text-xl">
-                                Save your DVD and watch your assets flourish with a
-                                generous 7% APY. Your financial future blooms here,
-                                nurtured by the power of decentralized finance.
+                                DVD maintains a stable value that grows at a fixed rate.
+                                Each DVD automatically appreciates over time, like USD
+                                in a high-yield savings account. You can buy, hold, or
+                                sell anytime while your wealth grows.
                             </p>
                             <div className="mt-6">
                                 <Button
                                     variant="secondary"
                                     className="w-full lg:w-auto h-14 lg:h-auto rounded-full py-3 px-6 text-lg bg-blue-500 hover:bg-blue-600 text-white"
                                 >
-                                    Earn at 7% APY
+                                    Swap for {Math.floor(DVD_INTEREST_RATE * 100)}% APY
                                 </Button>
                             </div>
                         </div>
@@ -144,7 +155,7 @@ export default function Home() {
                             <Image
                                 src={vault}
                                 alt="DVD Minting"
-                                className="relative h-full w-[200%] ml-[-90%] object-cover max-w-none z-[-1]"
+                                className="relative w-[200%] ml-[-90%] object-cover max-w-none z-[-1]"
                             />
                         </div>
                         <Image
@@ -158,15 +169,15 @@ export default function Home() {
                                 Unlock your assets&rsquo; potential
                             </h3>
                             <p className="text-lg lg:text-xl">
-                                Mint DVD instantly by depositing your decentralized
-                                assets as collateral.
+                                Deposit your decentralized assets as collateral and
+                                instantly borrow DVD against them.
                             </p>
                             <div className="mt-6">
                                 <Button
                                     variant="secondary"
                                     className="w-full lg:w-auto h-14 lg:h-auto rounded-full py-3 px-6 text-lg bg-yellow-600 hover:bg-yellow-700 text-white"
                                 >
-                                    Borrow at 8% APY
+                                    Borrow at {Math.floor(DVD_BORROW_RATE * 100)}% APY
                                 </Button>
                             </div>
                         </div>
@@ -177,10 +188,8 @@ export default function Home() {
                                 Governed by the community
                             </h3>
                             <p className="text-lg lg:text-xl mb-6">
-                                Earn DOVE by borrowing or saving DVD. Participate in
-                                Dove&nbsp;DAO governance to shape the protocol&rsquo;s
-                                future. 100% of protocol surplus is used to buy back and
-                                burn DOVE.
+                                Earn DOVE by borrowing or staking DVD, then vote in Dove&nbsp;DAO governance to shape the protocol&rsquo;s future.
+                                100% of protocol surplus is used to buy back and burn DOVE, increasing value for token holders.
                             </p>
                             <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0 justify-center lg:justify-start">
                                 <a

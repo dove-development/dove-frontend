@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle } from "lucide-react";
 import { nf } from "@/lib/utils";
-import { World, Config, FlashMintConfig } from "@/../pkg/dove";
+import { World, Config, FlashMintConfig, InterestRate } from "@/../pkg/dove";
 import Ledger from "@/lib/ledger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DvdCache from "@/lib/cache/dvd-cache";
@@ -62,6 +62,7 @@ export default function FlashMint({
 
             const newConfig = new Config(
                 config.maxLtv,
+                config.dvdInterestRate,
                 config.doveOracle,
                 config.auctionConfig,
                 config.debtConfig,
@@ -81,7 +82,7 @@ export default function FlashMint({
 
     return (
         <Card className="mt-8 shadow-lg bg-gray-800 border-gray-700">
-            <CardHeader className="bg-gradient-to-r from-cyan-900 to-blue-900 text-white">
+            <CardHeader className="bg-gradient-to-r from-cyan-900 to-blue-900 text-white rounded-t-lg">
                 <CardTitle className="text-2xl">Flash Mint</CardTitle>
             </CardHeader>
             <CardContent className="p-6">

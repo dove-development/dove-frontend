@@ -9,12 +9,13 @@ import DvdCache from "@/lib/cache/dvd-cache";
 import StablecoinCache from "@/lib/cache/stablecoin-cache";
 import Ledger from "@/lib/ledger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Stability } from "../../../pkg/dove";
 
 interface StablecoinTradingCardProps {
     stablecoin: Stablecoin;
-    stability?: any;
+    stability?: Stability;
     loading: string;
-    onSetMintLimit: (newMintLimit: string) => void;
+    onSetMaxDeposit: (newMaxDeposit: string) => void;
     onBuyDvd: (amount: string) => void;
     onSellDvd: (amount: string) => void;
     isDisabled: boolean;
@@ -24,34 +25,34 @@ function StablecoinTradingCard({
     stablecoin,
     stability,
     loading,
-    onSetMintLimit,
+    onSetMaxDeposit,
     onBuyDvd,
     onSellDvd,
     isDisabled
 }: StablecoinTradingCardProps) {
     const [amount, setAmount] = useState<string>("");
-    const [newMintLimit, setNewMintLimit] = useState<string>("");
+    const [newMaxDeposit, setNewMaxDeposit] = useState<string>("");
 
     return (
         <div className="bg-gray-700 p-4 rounded-lg">
             <h4 className="text-lg font-medium mb-2 text-gray-300">{stablecoin.name}</h4>
-            <p className="text-sm text-gray-400">Minted: {stability?.minted.toString() || "N/A"}</p>
-            <p className="text-sm text-gray-400 mb-4">Mint Limit: {stability?.mintLimit.toString() || "N/A"}</p>
+            <p className="text-sm text-gray-400">Deposited: {stability?.deposited.toString() || "N/A"}</p>
+            <p className="text-sm text-gray-400 mb-4">Max Deposit: {stability?.maxDeposit.toString() || "N/A"}</p>
             <div className="flex flex-col space-y-2 mb-4">
                 <Input
                     type="number"
-                    placeholder="New Mint Limit"
-                    value={newMintLimit}
-                    onChange={(e) => setNewMintLimit(e.target.value)}
+                    placeholder="New Max Deposit"
+                    value={newMaxDeposit}
+                    onChange={(e) => setNewMaxDeposit(e.target.value)}
                     className="w-full"
                 />
                 <Button
-                    onClick={() => onSetMintLimit(newMintLimit)}
+                    onClick={() => onSetMaxDeposit(newMaxDeposit)}
                     disabled={!stability || !!loading}
                     className="w-full bg-blue-700 hover:bg-blue-600 text-white"
                 >
-                    {loading === `Updating mint limit for ${stablecoin.name}...` && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Update Mint Limit
+                    {loading === `Updating deposit limit for ${stablecoin.name}...` && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Update Deposit Limit
                 </Button>
             </div>
             <div className="flex flex-col space-y-2">
@@ -103,14 +104,14 @@ export default function DvdTrading({
     const [loading, setLoading] = useState<string>("");
     const [error, setError] = useState<string>("");
 
-    const handleSetMintLimit = async (stablecoin: Stablecoin, newMintLimit: string) => {
-        const parsedMintLimit = Number(newMintLimit);
+    const handleSetMaxDeposit = async (stablecoin: Stablecoin, newMaxDeposit: string) => {
+        const parsedMaxDeposit = Number(newMaxDeposit);
         const stability = stabilityCache?.get(stablecoin);
-        if (parsedMintLimit && stability) {
-            setLoading(`Updating mint limit for ${stablecoin.name}...`);
+        if (parsedMaxDeposit && stability) {
+            setLoading(`Updating deposit limit for ${stablecoin.name}...`);
             setError("");
             try {
-                await ledger.setStabilityMintLimit(parsedMintLimit, stability);
+                await ledger.setStabilityMaxDeposit(parsedMaxDeposit, stability);
             } catch (e: any) {
                 setError(e.toString());
             } finally {
@@ -151,7 +152,7 @@ export default function DvdTrading({
 
     return (
         <Card className="mt-8 shadow-lg bg-gray-800 border-gray-700">
-            <CardHeader className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white">
+            <CardHeader className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white rounded-t-lg">
                 <CardTitle className="text-2xl">DVD Trading</CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -162,13 +163,13 @@ export default function DvdTrading({
                     </div>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {Stablecoin.LIST.map((stablecoin) => (
+                    {Stablecoin.LIST.filter((stablecoin) => stablecoin.hasStability).map((stablecoin) => (
                         <StablecoinTradingCard
                             key={stablecoin.symbol}
                             stablecoin={stablecoin}
                             stability={stabilityCache?.get(stablecoin)}
                             loading={loading}
-                            onSetMintLimit={(newMintLimit) => handleSetMintLimit(stablecoin, newMintLimit)}
+                            onSetMaxDeposit={(newMaxDeposit) => handleSetMaxDeposit(stablecoin, newMaxDeposit)}
                             onBuyDvd={(amount) => handleBuyDvd(stablecoin, amount)}
                             onSellDvd={(amount) => handleSellDvd(stablecoin, amount)}
                             isDisabled={!worldCache || !stabilityCache || !dvdCache || !stablecoinCache}

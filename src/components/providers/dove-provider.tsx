@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import init from "@/../pkg/dove";
+import init, { initializePanicHook } from "@/../pkg/dove";
 
 export type Dove = {
     initialized: boolean;
@@ -17,6 +17,7 @@ export function DoveProvider({ children }: { children: React.ReactNode }) {
             await init({
                 module_or_path: "pkg/dove_bg.wasm"
             });
+            initializePanicHook();
             setInitialized(true);
         })();
     }, []);

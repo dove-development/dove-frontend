@@ -7,7 +7,7 @@ import {
     VersionedTransaction
 } from "@solana/web3.js";
 import { WalletContextState } from "@solana/wallet-adapter-react";
-import { lamportsToSol, solToLamports, unwrap } from "./utils";
+import { lamportsToSol, sleep, solToLamports, unwrap } from "./utils";
 import {
     Account,
     getAssociatedTokenAddressSync,
@@ -24,6 +24,7 @@ export class Wallet {
 
     public readonly contextState: WalletContextState;
     public readonly setShowModal: (show: boolean) => void;
+    public readonly minSlot: number;
 
     constructor(
         contextState: WalletContextState,
@@ -36,6 +37,7 @@ export class Wallet {
         this.pubkey = publicKey || undefined;
         this.contextState = contextState;
         this.setShowModal = setShowModal;
+        this.minSlot = 0;
     }
 
     private async confirmTransaction(signature: string, lastValidBlockHeight: number) {
@@ -57,7 +59,7 @@ export class Wallet {
             if (status.value?.confirmationStatus === "confirmed") {
                 return;
             }
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            await sleep(1000);
         }
     }
 

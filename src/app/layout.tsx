@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/app/header";
 import { CacheProvider } from "@/components/providers/cache-provider";
@@ -7,10 +6,13 @@ import { WalletProvider } from "@/components/providers/wallet-provider";
 import { RPC_URL } from "@/lib/constants";
 import { DoveProvider } from "@/components/providers/dove-provider";
 import { LedgerProvider } from "@/components/providers/ledger-provider";
-const font = localFont({
-    src: "../fonts/Inter.woff2"
-});
 import Script from "next/script";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+    subsets: ["latin"],
+    variable: "--font-inter"
+});
 
 export const metadata: Metadata = {
     title: "Home | Dove",
@@ -25,7 +27,7 @@ export default function Layout({
 }>) {
     return (
         <html lang="en">
-            <body className={font.className}>
+            <body className={inter.className}>
                 <WalletProvider rpcUrl={RPC_URL}>
                     <DoveProvider>
                         <CacheProvider>

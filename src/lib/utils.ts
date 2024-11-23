@@ -5,6 +5,10 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
+export function sleep(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function unwrap<T>(v: T | null | undefined, msg: string): T {
     if (v === null || v === undefined) {
         throw new Error(msg);

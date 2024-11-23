@@ -46,7 +46,7 @@ export class SavingsCache {
             world.config.savingsConfig,
             unixTimestamp
         );
-        const rewards = page.projectRewards(world.savings, unixTimestamp);
+        const rewards = page.projectRewards(world.savings, world.config.savingsConfig, unixTimestamp);
         return new SavingsCache(savings, total, rewards);
     }
 }

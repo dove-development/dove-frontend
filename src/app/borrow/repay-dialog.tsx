@@ -38,7 +38,7 @@ export default function RepayDialog({
             decimals={2}
             stats={[
                 {
-                    label: "Vault Debt",
+                    label: "Total Debt",
                     value: `${nf(newPosition.debt, 2)} DVD`
                 },
                 {

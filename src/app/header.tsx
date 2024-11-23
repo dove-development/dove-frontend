@@ -29,12 +29,12 @@ export default function Header() {
     const navLinks = [
         { label: "Docs", href: "https://docs.dove.money", external: true },
         {
-            label: "Governance",
+            label: "Vote",
             href: "https://governance.dove.money",
             external: true
         },
-        { label: "Vault", href: "/vault" },
-        { label: "Savings", href: "/savings" },
+        { label: "Borrow", href: "/borrow" },
+        { label: "Stake", href: "/stake" },
         { label: "Metrics", href: "/metrics" }
     ];
 
