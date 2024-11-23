@@ -3,9 +3,9 @@ import { PublicKey } from "@solana/web3.js";
 export const DOVE_PROGRAM_ID = new PublicKey(
     "4VTAkPgexLTY4bTqAEvuZdqyyD5ei4ePJ9FaSSDXHaVL"
 );
-export const RPC_URL = "http://127.0.0.1:8899";
+export const RPC_URL = "https://rpc.dove.money";
 export const ASSET_DECIMALS = 4;
-export const DEBUG = true;
+export const DEBUG = false;
 export const MOCK_BACKEND = false;
 
 // For instant loading
