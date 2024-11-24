@@ -23,7 +23,6 @@ import {
     WiderContent,
     NarrowerContent,
     Sidebar,
-    TwoColumn,
     InterfaceHeader,
     ResponsiveList
 } from "@/components/store/layout";
@@ -41,7 +40,6 @@ import { Table, TableBody, TableHeader, TableRow } from "@/components/ui/table";
 import ErrorBanner from "@/components/interface/error-banner";
 import RewardsCard from "@/components/card/rewards-card";
 import ValueCard from "@/components/card/value-card";
-import ListCard from "@/components/card/list-card";
 
 class SavingsAsset extends Stablecoin {
     balance?: number;
@@ -57,7 +55,8 @@ class SavingsAsset extends Stablecoin {
             symbol: stablecoin.symbol,
             icon: stablecoin.icon,
             mint: stablecoin.mint,
-            hasStability: stablecoin.hasStability
+            hasStability: stablecoin.hasStability,
+            is2022: stablecoin.is2022
         });
         this.balance = balance;
     }
