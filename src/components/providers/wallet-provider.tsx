@@ -47,10 +47,7 @@ export function WalletProvider({
         <ConnectionProvider
             endpoint={rpcUrl}
             config={{
-                fetch: (input, init) => {
-                    console.log(input, init);
-                    return fetch(input, init);
-                }
+                commitment: "confirmed"
             }}
         >
             <UnifiedWalletProvider
