@@ -27,7 +27,9 @@ export default class StablecoinCache extends HashMap<Stablecoin, StablecoinInfo>
             return StablecoinCache.mock();
         }
         const [mints, accounts] = await Promise.all([
-            Promise.all(Stablecoin.LIST.map((c) => wallet.getMint(c.mint))),
+            Promise.all(
+                Stablecoin.LIST.map((c) => wallet.getMint(c.mint, c.is2022))
+            ),
             Promise.all(
                 Stablecoin.LIST.map((c) => wallet.getAssociatedTokenAccount(c.mint))
             )

@@ -12,6 +12,7 @@ import {
     Account,
     getAssociatedTokenAddressSync,
     Mint,
+    TOKEN_2022_PROGRAM_ID,
     TOKEN_PROGRAM_ID,
     unpackAccount,
     unpackMint
@@ -94,12 +95,12 @@ export class Wallet {
         return await this.connection.getAccountInfo(pubkey);
     }
 
-    async getMint(mint: PublicKey): Promise<Mint | null> {
+    async getMint(mint: PublicKey, is2022: boolean): Promise<Mint | null> {
         const info = await this.connection.getAccountInfo(mint);
         if (!info) {
             return null;
         }
-        return unpackMint(mint, info);
+        return unpackMint(mint, info, is2022 ? TOKEN_2022_PROGRAM_ID : TOKEN_PROGRAM_ID);
     }
 
     async getAssociatedTokenAccount(mint: PublicKey): Promise<Account | null> {
