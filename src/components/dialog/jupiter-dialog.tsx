@@ -149,13 +149,21 @@ export function JupiterDialog({
 }: {
     open: boolean;
     close: () => void;
-    inputMint?: PublicKey;
-    outputMint?: PublicKey;
+    inputMint?: PublicKey | string;
+    outputMint?: PublicKey | string;
     onSuccess?: () => void;
 }) {
     const wallet = useWallet();
     if (!inputMint && !outputMint) {
         throw new Error("Either inputMint or outputMint must be provided");
+    }
+
+    if (typeof inputMint === "string") {
+        inputMint = new PublicKey(inputMint);
+    }
+
+    if (typeof outputMint === "string") {
+        outputMint = new PublicKey(outputMint);
     }
 
     useEffect(() => {

@@ -13,5 +13,5 @@ export const DVD_INTEREST_RATE = 0.07;
 export const DVD_BORROW_RATE = 0.08;
 export const TVL = DEBUG ? 5682520334 : 169.24;
 
-export const DVD_TRADE_MINT = new PublicKey("3k32iFf2MHNp7ZRJWv3ksjoTKnPJDRQybwrahfCHhixw");
-export const DOVE_TRADE_MINT = new PublicKey("FZUBBztCWKHUdjdWgkPNYPLbnVcaxTwPjobawKAnRXut");
+export const DVD_TRADE_MINT = "3k32iFf2MHNp7ZRJWv3ksjoTKnPJDRQybwrahfCHhixw";
+export const DOVE_TRADE_MINT = "FZUBBztCWKHUdjdWgkPNYPLbnVcaxTwPjobawKAnRXut";
