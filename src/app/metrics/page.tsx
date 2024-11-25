@@ -141,7 +141,7 @@ export default function MetricsDashboard() {
                                 {
                                     label: "DOVE Emission Rate",
                                     value: worldCache?.doveEmittedPerDay !== undefined
-                                        ? `${nf(worldCache.doveEmittedPerDay, 4)} DOVE/day`
+                                        ? `${nf(worldCache.doveEmittedPerDay, 4)}/day`
                                         : undefined
                                 }
                             ]}
