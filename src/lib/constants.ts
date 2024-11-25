@@ -15,3 +15,4 @@ export const TVL = DEBUG ? 5682520334 : 169.24;
 
 export const DVD_TRADE_MINT = "3k32iFf2MHNp7ZRJWv3ksjoTKnPJDRQybwrahfCHhixw";
 export const DOVE_TRADE_MINT = "FZUBBztCWKHUdjdWgkPNYPLbnVcaxTwPjobawKAnRXut";
+export const USDC_TRADE_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";

@@ -13,7 +13,14 @@ import vault from "@/images/vault.png";
 import doveToken from "@/images/dove_token.png";
 import { JupiterLink } from "@/components/interface/jupiter-link";
 import SvgIcon from "@/components/interface/svg-icon";
-import { DOVE_TRADE_MINT, DVD_BORROW_RATE, DVD_INTEREST_RATE, DVD_TRADE_MINT, TVL } from "@/lib/constants";
+import {
+    DOVE_TRADE_MINT,
+    DVD_BORROW_RATE,
+    DVD_INTEREST_RATE,
+    DVD_TRADE_MINT,
+    TVL,
+    USDC_TRADE_MINT
+} from "@/lib/constants";
 import { nf } from "@/lib/utils";
 
 export default function Home() {
@@ -69,6 +76,7 @@ export default function Home() {
                             <h5 className="text-lg text-white/80">TVL</h5>
                         </div>
                         <JupiterLink
+                            inputMint={USDC_TRADE_MINT}
                             outputMint={DVD_TRADE_MINT}
                         >
                             <Button className="w-full sm:w-auto h-auto text-xl rounded-full px-3 text-white bg-white/10 backdrop-blur-md shadow-xl transition-all duration-300 hover:shadow-3xl hover:-translate-y-1 hover:bg-white/20 border border-white/20 ease-in-out">
@@ -95,7 +103,7 @@ export default function Home() {
 
             <div className="mx-auto lg:max-w-8xl lg:px-16 xl:px-32">
                 <div className="overflow-hidden mx-auto max-w-xl lg:max-w-none lg:mx-0 grid grid-cols-1 space-y-48 mb-48 lg:mb-12 lg:auto-rows-fr lg:grid-cols-1 lg:space-y-24">
-                <section className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16 items-center px-8 lg:px-0 my-24">
+                    <section className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16 items-center px-8 lg:px-0 my-24">
                         <div className="pt-4 lg:pt-0 lg:pb-0 lg:order-1 order-2 flex flex-col justify-center text-center lg:text-left">
                             <h3 className="text-3xl sm:text-4xl leading-none pb-4 font-bold bg-gradient-to-r from-[#7175f7] via-[#d652d4] to-[#f54640] bg-clip-text text-transparent">
                                 Fully decentralized
@@ -141,12 +149,18 @@ export default function Home() {
                                 sell anytime while your wealth grows.
                             </p>
                             <div className="mt-6">
-                                <Button
-                                    variant="secondary"
-                                    className="w-full lg:w-auto h-14 lg:h-auto rounded-full py-3 px-6 text-lg bg-blue-500 hover:bg-blue-600 text-white"
+                                <JupiterLink
+                                    inputMint={USDC_TRADE_MINT}
+                                    outputMint={DVD_TRADE_MINT}
                                 >
-                                    Swap for {Math.floor(DVD_INTEREST_RATE * 100)}% APY
-                                </Button>
+                                    <Button
+                                        variant="secondary"
+                                        className="w-full lg:w-auto h-14 lg:h-auto rounded-full py-3 px-6 text-lg bg-blue-500 hover:bg-blue-600 text-white"
+                                    >
+                                        Swap for {Math.floor(DVD_INTEREST_RATE * 100)}%
+                                        APY
+                                    </Button>
+                                </JupiterLink>
                             </div>
                         </div>
                     </section>
@@ -173,12 +187,14 @@ export default function Home() {
                                 instantly borrow DVD against them.
                             </p>
                             <div className="mt-6">
-                                <Button
-                                    variant="secondary"
-                                    className="w-full lg:w-auto h-14 lg:h-auto rounded-full py-3 px-6 text-lg bg-yellow-600 hover:bg-yellow-700 text-white"
-                                >
-                                    Borrow at {Math.floor(DVD_BORROW_RATE * 100)}% APY
-                                </Button>
+                                <Link href="/borrow">
+                                    <Button
+                                        variant="secondary"
+                                        className="w-full lg:w-auto h-14 lg:h-auto rounded-full py-3 px-6 text-lg bg-yellow-600 hover:bg-yellow-700 text-white"
+                                    >
+                                        Borrow at {Math.floor(DVD_BORROW_RATE * 100)}% APY
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                     </section>
@@ -188,8 +204,10 @@ export default function Home() {
                                 Governed by the community
                             </h3>
                             <p className="text-lg lg:text-xl mb-6">
-                                Earn DOVE by borrowing or staking DVD, then vote in Dove&nbsp;DAO governance to shape the protocol&rsquo;s future.
-                                100% of protocol surplus is used to buy back and burn DOVE, increasing value for token holders.
+                                Earn DOVE by borrowing or staking DVD, then vote in
+                                Dove&nbsp;DAO governance to shape the protocol&rsquo;s
+                                future. 100% of protocol surplus is used to buy back and
+                                burn DOVE, increasing value for token holders.
                             </p>
                             <div className="flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0 justify-center lg:justify-start">
                                 <a
@@ -206,9 +224,7 @@ export default function Home() {
                                         <ExternalLink className="ml-1 h-4 w-4" />
                                     </Button>
                                 </a>
-                                <JupiterLink
-                                    outputMint={DOVE_TRADE_MINT}
-                                >
+                                <JupiterLink inputMint={USDC_TRADE_MINT} outputMint={DOVE_TRADE_MINT}>
                                     <Button className="w-full h-14 lg:h-auto rounded-full py-3 px-6 text-lg bg-foreground text-background">
                                         Swap for DOVE
                                     </Button>
