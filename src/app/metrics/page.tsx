@@ -53,11 +53,14 @@ export default function MetricsDashboard() {
         ];
     }, [worldCache]);
     const tvl = useMemo(() => {
+        if (!collateralCache || !stabilityCache) {
+            return undefined;
+        }
         let result = 0;
-        collateralCache?.forEach((c) => {
+        collateralCache.forEach((c) => {
             result += c.deposited * c.price;
         });
-        stabilityCache?.forEach((s) => {
+        stabilityCache.forEach((s) => {
             result += s.deposited;
         });
         return result;
@@ -94,7 +97,7 @@ export default function MetricsDashboard() {
                 </WiderContent>
                 <NarrowerContent>
                     <Sidebar>
-                        <ValueCard label="TVL" value={`$${nf(tvl, 2)}`} />
+                        <ValueCard label="TVL" value={tvl !== undefined ? `$${nf(tvl, 2)}` : undefined} />
                         <ValueCard
                             label="DOVE Supply"
                             value={
