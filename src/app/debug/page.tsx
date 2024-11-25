@@ -26,6 +26,7 @@ import ProgramInfo from "./program-info";
 import SystemSetup from "./system-setup";
 import OfferingInfo from "./offering-info";
 import FlashMint from "./flash-mint";
+import UpdateMetadata from "./update-metadata";
 
 // Add types for the main component props
 interface DebugProps {}
@@ -179,6 +180,8 @@ export default function Debug({}: DebugProps) {
             />
 
             <FlashMint worldCache={worldCache} ledger={ledger} dvdCache={dvdCache} />
+
+            <UpdateMetadata ledger={ledger} />
         </div>
     );
 }

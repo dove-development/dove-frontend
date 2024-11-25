@@ -21,7 +21,9 @@ import {
 } from "@solana/spl-token";
 import {
     PROGRAM_ID as METADATA_PROGRAM_ID,
-    createCreateMetadataAccountV3Instruction
+    createCreateMetadataAccountV3Instruction,
+    createUpdateMetadataAccountInstruction,
+    createUpdateMetadataAccountV2Instruction
 } from "@metaplex-foundation/mpl-token-metadata";
 import {
     AccountWasm,
@@ -528,6 +530,36 @@ export default class Ledger {
         );
         await this.wallet.sendAndConfirmTransaction(tx);
         this.invalidate([VaultCache, DvdCache]);
+    }
+
+    public async updateMetadata({mint, url, name, symbol}: {mint: PublicKey, url: string, name: string, symbol: string}) {
+        const pubkey = unwrap(this.wallet.pubkey, "Wallet not connected!");
+        const tx = new Transaction();
+        tx.add(
+            createUpdateMetadataAccountV2Instruction(
+                {
+                    metadata: mint,
+                    updateAuthority: pubkey
+                },
+                {
+                    updateMetadataAccountArgsV2: {
+                        data: {
+                            name: name,
+                            symbol: symbol,
+                            uri: url,
+                            sellerFeeBasisPoints: 0,
+                            creators: null,
+                            collection: null,
+                            uses: null
+                        },
+                        updateAuthority: pubkey,
+                        primarySaleHappened: null,
+                        isMutable: true
+                    }
+                }
+            )
+        );
+        await this.wallet.sendAndConfirmTransaction(tx);
     }
 
     public async createMint({
