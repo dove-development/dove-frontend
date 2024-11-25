@@ -288,7 +288,7 @@ export default function Home() {
                             <ul className="space-y-2">
                                 <li>
                                     <a
-                                        href="https://twitter.com/doveusd"
+                                        href="https://twitter.com/eyrie64"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-sm hover:underline"
@@ -308,7 +308,7 @@ export default function Home() {
                                 </li>
                                 <li>
                                     <a
-                                        href="https://discord.gg/doveusd"
+                                        href="https://discord.gg/dFJes4E5"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-sm hover:underline"
