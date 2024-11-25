@@ -4,13 +4,13 @@ import { ExternalLink } from "lucide-react";
 import BuildInfo from "@/components/interface/build-info";
 import Image from "next/image";
 
-import doveCover from "@/images/dove_cover.png";
-import doveUpright from "@/images/dove_upright.png";
-import spotlight from "@/images/spotlight.jpg";
-import decentralizedAssets from "@/images/decentralized_assets.png";
-import stack from "@/images/stack.png";
-import vault from "@/images/vault.png";
-import doveToken from "@/images/dove_token.png";
+import doveCover from "@/images/dove_cover.webp";
+import doveUpright from "@/images/dove_upright.webp";
+import spotlight from "@/images/spotlight.webp";
+import decentralizedAssets from "@/images/decentralized_assets.webp";
+import stack from "@/images/stack.webp";
+import vault from "@/images/vault.webp";
+import doveToken from "@/images/dove_token.webp";
 import { JupiterLink } from "@/components/interface/jupiter-link";
 import SvgIcon from "@/components/interface/svg-icon";
 import {
