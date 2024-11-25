@@ -12,7 +12,6 @@ import {
 } from "@solana/web3.js";
 import { IOnRequestIxCallback, SwapResult } from "@/types/jupiter-terminal";
 import { unwrap, zip } from "@/lib/utils";
-import { ButtonProps } from "../ui/button";
 import { useEffect } from "react";
 
 async function processJupiterTransaction(
@@ -150,17 +149,11 @@ export function JupiterDialog({
 }: {
     open: boolean;
     close: () => void;
-    inputMint?: PublicKey | string;
-    outputMint?: PublicKey | string;
+    inputMint?: PublicKey;
+    outputMint?: PublicKey;
     onSuccess?: () => void;
 }) {
     const wallet = useWallet();
-    if (typeof outputMint === "string") {
-        outputMint = new PublicKey(outputMint);
-    }
-    if (typeof inputMint === "string") {
-        inputMint = new PublicKey(inputMint);
-    }
     if (!inputMint && !outputMint) {
         throw new Error("Either inputMint or outputMint must be provided");
     }

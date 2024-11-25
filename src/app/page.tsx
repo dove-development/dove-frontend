@@ -13,7 +13,7 @@ import vault from "@/images/vault.png";
 import doveToken from "@/images/dove_token.png";
 import { JupiterLink } from "@/components/interface/jupiter-link";
 import SvgIcon from "@/components/interface/svg-icon";
-import { DVD_BORROW_RATE, DVD_INTEREST_RATE, TVL } from "@/lib/constants";
+import { DOVE_TRADE_MINT, DVD_BORROW_RATE, DVD_INTEREST_RATE, DVD_TRADE_MINT, TVL } from "@/lib/constants";
 import { nf } from "@/lib/utils";
 
 export default function Home() {
@@ -69,7 +69,7 @@ export default function Home() {
                             <h5 className="text-lg text-white/80">TVL</h5>
                         </div>
                         <JupiterLink
-                            outputMint={"Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"}
+                            outputMint={DVD_TRADE_MINT}
                         >
                             <Button className="w-full sm:w-auto h-auto text-xl rounded-full px-3 text-white bg-white/10 backdrop-blur-md shadow-xl transition-all duration-300 hover:shadow-3xl hover:-translate-y-1 hover:bg-white/20 border border-white/20 ease-in-out">
                                 <span className="flex items-center">
@@ -207,9 +207,7 @@ export default function Home() {
                                     </Button>
                                 </a>
                                 <JupiterLink
-                                    outputMint={
-                                        "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
-                                    }
+                                    outputMint={DOVE_TRADE_MINT}
                                 >
                                     <Button className="w-full h-14 lg:h-auto rounded-full py-3 px-6 text-lg bg-foreground text-background">
                                         Swap for DOVE

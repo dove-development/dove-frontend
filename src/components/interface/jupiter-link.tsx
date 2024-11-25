@@ -6,8 +6,8 @@ import { JupiterDialog } from "../dialog/jupiter-dialog";
 
 interface JupiterLinkProps {
     children: React.ReactNode;
-    inputMint?: PublicKey | string;
-    outputMint?: PublicKey | string;
+    inputMint?: PublicKey;
+    outputMint?: PublicKey;
     onSuccess?: () => void;
     className?: string;
 }

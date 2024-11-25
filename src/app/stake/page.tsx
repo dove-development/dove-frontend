@@ -40,6 +40,7 @@ import { Table, TableBody, TableHeader, TableRow } from "@/components/ui/table";
 import ErrorBanner from "@/components/interface/error-banner";
 import RewardsCard from "@/components/card/rewards-card";
 import ValueCard from "@/components/card/value-card";
+import { DOVE_TRADE_MINT } from "@/lib/constants";
 
 class SavingsAsset extends Stablecoin {
     balance?: number;
@@ -148,8 +149,8 @@ export default function Page() {
             <JupiterDialog
                 open={openDialog === "jupiter"}
                 close={handleDialogClose}
-                inputMint={selectedAsset?.mint.toBase58()}
-                outputMint="2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo"
+                inputMint={selectedAsset?.mint}
+                outputMint={DOVE_TRADE_MINT}
                 onSuccess={cacheRefresh}
             />
             <InterfaceContainer>
