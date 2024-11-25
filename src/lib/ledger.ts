@@ -538,7 +538,14 @@ export default class Ledger {
         tx.add(
             createUpdateMetadataAccountV2Instruction(
                 {
-                    metadata: mint,
+                    metadata: PublicKey.findProgramAddressSync(
+                        [
+                            Buffer.from("metadata"),
+                            METADATA_PROGRAM_ID.toBuffer(),
+                            mint.toBuffer()
+                        ],
+                        METADATA_PROGRAM_ID
+                    )[0],
                     updateAuthority: pubkey
                 },
                 {
