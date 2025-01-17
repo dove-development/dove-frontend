@@ -3,7 +3,7 @@ import { PublicKey } from "@solana/web3.js";
 export const DOVE_PROGRAM_ID = new PublicKey(
     "4VTAkPgexLTY4bTqAEvuZdqyyD5ei4ePJ9FaSSDXHaVL"
 );
-export const RPC_URL = "https://rpc.dove.money";
+export const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=6d974fec-1d17-4a78-8a16-08da05d5e0a6";
 export const ASSET_DECIMALS = 4;
 export const DEBUG = false;
 export const MOCK_BACKEND = false;
